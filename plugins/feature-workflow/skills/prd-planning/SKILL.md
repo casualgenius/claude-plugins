@@ -1,7 +1,7 @@
 ---
 name: prd-planning
 description: Use when planning feature implementations from PRD documents, creating technical implementation plans, breaking down work into tasks, or structuring task trackers for development workflows.
-allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, TodoWrite
+allowed-tools: Read, Glob, Grep, Write, TodoWrite
 user-invocable: false
 ---
 
@@ -35,16 +35,16 @@ Grep: Search for specific code patterns
 Read: Examine file contents
 ```
 
-### 3. Ask Clarifying Questions
+### 3. Review User Clarifications
 
-Before finalizing the plan, ask the user about:
+The planning command will have already gathered user clarifications about:
 - Ambiguous requirements
 - Missing acceptance criteria
 - Technology choices not specified
 - Integration points unclear
 - Priority of features if scope is large
 
-Use the AskUserQuestion tool to gather this information interactively.
+These answers will be provided as part of your input context. Use them to inform your plan.
 
 ### 4. Validate the Approach
 

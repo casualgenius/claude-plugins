@@ -1,8 +1,7 @@
 ---
 description: Plan a feature implementation from a PRD document. Analyzes the PRD and codebase, asks clarifying questions, then creates a Technical Implementation Plan and Task Tracker.
 argument-hint: <prd-path>
-context: fork
-agent: prd-planner
+allowed-tools: Read, Glob, Grep, Task, AskUserQuestion
 ---
 
 # Plan Command
@@ -33,41 +32,52 @@ Look for project-specific settings:
 Read: .claude/feature-workflow.local.md
 ```
 
-If found, use these settings for project-specific requirements (migrations, Storybook, etc.).
+If found, these settings will be passed to the planning agent.
 
-### 3. Analyze PRD and Codebase
+### 3. Explore Codebase
 
-1. Read and analyze the PRD document completely
-2. Explore the existing codebase to understand architecture
-3. Identify integration points and dependencies
+Use the Explore agent to understand the existing codebase:
+- Search for files related to the feature area
+- Understand existing patterns and conventions
+- Identify integration points
 
 ### 4. Ask Clarifying Questions
 
-Use AskUserQuestion to clarify:
+Before launching the planning agent, use AskUserQuestion to clarify:
 - Ambiguous requirements
 - Missing acceptance criteria
 - Technology choices not specified
 - Priority if scope is large
 
-DO NOT proceed with assumptions. Ask questions first.
+Gather all needed clarifications now - the agent will work with these answers.
 
-### 5. Create Implementation Plan
+### 5. Launch PRD Planner Agent
 
-Create the implementation plan at `.feature-workflow/{feature-name}/implementation.md`.
+Use the Task tool to launch the prd-planner agent with complete context:
 
-**Deriving the feature name from PRD path:**
-1. Extract the PRD filename without path
-2. Remove extension (`.md`)
-3. Remove common PRD suffixes (`.prd`, `-prd`, `_prd`)
-4. Normalize: lowercase, replace spaces with hyphens
+```
+Task: prd-planner agent
+Prompt must include:
+  - PRD path and full contents
+  - Project settings (if found)
+  - User's answers to clarifying questions
+  - Codebase exploration findings
+  - Output location: .feature-workflow/{feature-name}/
+```
 
-### 6. Create Task Tracker
+The agent will create:
+1. Technical Implementation Plan (implementation.md)
+2. Task Tracker (tracker.json)
 
-Create the task tracker at `.feature-workflow/{feature-name}/tracker.json`.
+**Important**: Pass ALL context to the agent including:
+- The full PRD content
+- All clarifying question answers
+- Relevant codebase findings
+- Project settings
 
-### 7. Report Results
+### 6. Report Results
 
-When complete, report:
+When the agent completes, report:
 - Path to the created Implementation Plan
 - Path to the created Task Tracker
 - Summary of phases and tasks
