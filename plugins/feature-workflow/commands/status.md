@@ -1,10 +1,7 @@
 ---
-name: status
-description: "Show the current progress of a feature workflow. Displays tasks by status and overall completion percentage."
-argument-hint: "[tracker-path]"
-allowed-tools:
-  - Read
-  - Glob
+description: Show the current progress of a feature workflow. Displays tasks by status and overall completion percentage.
+argument-hint: [tracker-path]
+allowed-tools: Read, Glob
 ---
 
 # Status Command

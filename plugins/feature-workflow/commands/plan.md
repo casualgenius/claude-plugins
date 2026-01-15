@@ -1,14 +1,7 @@
 ---
-name: plan
-description: "Plan a feature implementation from a PRD document. Analyzes the PRD and codebase, asks clarifying questions, then creates a Technical Implementation Plan and Task Tracker."
-argument-hint: "<prd-path>"
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Grep
-  - Task
-  - AskUserQuestion
+description: Plan a feature implementation from a PRD document. Analyzes the PRD and codebase, asks clarifying questions, then creates a Technical Implementation Plan and Task Tracker.
+argument-hint: <prd-path>
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion
 ---
 
 # Plan Command

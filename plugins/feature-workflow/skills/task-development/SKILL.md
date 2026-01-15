@@ -1,8 +1,9 @@
-# Task Development Skill
-
-Use this skill when implementing tasks from a feature workflow task tracker, following the pick-develop-test-commit cycle, or understanding how to work with task trackers during development.
-
 ---
+name: task-development
+description: Use when implementing tasks from a feature workflow task tracker, following the pick-develop-test-commit cycle, or understanding how to work with task trackers during development.
+---
+
+# Task Development Skill
 
 ## Task Execution Workflow
 

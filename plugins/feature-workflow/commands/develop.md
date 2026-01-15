@@ -1,14 +1,7 @@
 ---
-name: develop
-description: "Start or continue feature development from a task tracker. Automatically picks tasks, spawns developer agents, and commits completed work until all tasks are done."
-argument-hint: "[tracker-path]"
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Grep
-  - Task
-  - Bash
+description: Start or continue feature development from a task tracker. Automatically picks tasks, spawns developer agents, and commits completed work until all tasks are done.
+argument-hint: [tracker-path]
+allowed-tools: Read, Write, Glob, Grep, Task, Bash
 ---
 
 # Develop Command

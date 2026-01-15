@@ -1,8 +1,9 @@
-# PRD Planning Skill
-
-Use this skill when planning feature implementations from PRD documents, creating technical implementation plans, breaking down work into tasks, or structuring task trackers for development workflows.
-
 ---
+name: prd-planning
+description: Use when planning feature implementations from PRD documents, creating technical implementation plans, breaking down work into tasks, or structuring task trackers for development workflows.
+---
+
+# PRD Planning Skill
 
 ## PRD Analysis Process
 

@@ -36,6 +36,16 @@ plugins/<plugin-name>/
 The marketplace is configured in `.claude-plugin/marketplace.json`:
 - Each plugin entry needs `name` and `source` (full relative path like `./plugins/plugin-name`)
 
+## Relevant Documentation
+
+Here are links to relevant documentation for building plugins in markdown format:
+- Creating Plugins: https://code.claude.com/docs/en/plugins.md
+- Plugins Reference: https://code.claude.com/docs/en/plugins-reference.md
+- Slash Commands: https://code.claude.com/docs/en/slash-commands.md
+- Agent Skills: https://code.claude.com/docs/en/skills.md
+- Sub Agents: https://code.claude.com/docs/en/sub-agents.md
+- Hooks: https://code.claude.com/docs/en/hooks.md
+
 ## Installation Commands
 
 ```bash
