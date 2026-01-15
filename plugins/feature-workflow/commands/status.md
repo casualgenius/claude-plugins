@@ -13,16 +13,16 @@ Display the current progress of a feature development workflow.
 
 ## Arguments
 
-- `[tracker-path]` (optional): Path to the Task-Tracker.json file
-  - If not provided, searches for `*-Task-Tracker.json` files in the project
+- `[tracker-path]` (optional): Path to the tracker.json file
+  - If not provided, searches for trackers in `.feature-workflow/`
 
 ## Process
 
 ### 1. Find Tracker
 
-If no path provided:
+If no path provided, search for trackers in the `.feature-workflow` directory:
 ```
-Glob: **/*-Task-Tracker.json
+Glob: .feature-workflow/**/tracker.json
 ```
 
 If multiple trackers found, list them all with their progress.
@@ -99,7 +99,7 @@ Blocked Tasks:
 
 ```bash
 # With explicit path
-/feature-workflow:status docs/user-auth-Task-Tracker.json
+/feature-workflow:status .feature-workflow/user-auth/tracker.json
 
 # Auto-discover (shows all trackers)
 /feature-workflow:status
@@ -112,12 +112,12 @@ If multiple trackers are found and no path specified, show summary for each:
 ```
 Found 2 task trackers:
 
-1. docs/user-auth-Task-Tracker.json
+1. .feature-workflow/user-auth/tracker.json
    Feature: User Authentication
    Progress: 7/12 tasks (58%)
    Status: 2 in-progress, 3 todo
 
-2. docs/payment-Task-Tracker.json
+2. .feature-workflow/payment-integration/tracker.json
    Feature: Payment Integration
    Progress: 0/8 tasks (0%)
    Status: 8 todo

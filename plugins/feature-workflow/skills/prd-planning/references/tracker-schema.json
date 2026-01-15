@@ -11,7 +11,7 @@
     },
     "implementationDoc": {
       "type": "string",
-      "description": "Relative path to the Technical Implementation markdown file"
+      "description": "Path to the implementation.md file (typically .feature-workflow/{feature-name}/implementation.md)"
     },
     "createdAt": {
       "type": "string",
@@ -149,7 +149,7 @@
   "examples": [
     {
       "feature": "User Authentication",
-      "implementationDoc": "./user-auth-Technical-Implementation.md",
+      "implementationDoc": ".feature-workflow/user-auth/implementation.md",
       "createdAt": "2025-01-15T10:00:00Z",
       "phases": [
         {

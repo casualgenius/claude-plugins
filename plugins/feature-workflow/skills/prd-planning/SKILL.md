@@ -133,7 +133,7 @@ Create the task tracker JSON file with this schema:
 ```json
 {
   "feature": "Feature Name",
-  "implementationDoc": "./Feature-Technical-Implementation.md",
+  "implementationDoc": ".feature-workflow/feature-name/implementation.md",
   "createdAt": "2025-01-15T00:00:00Z",
   "phases": [
     {
@@ -218,20 +218,30 @@ task-004 (independent) ────────┘
 
 ---
 
-## Output File Naming
+## Output File Location
 
-Create output files in the same directory as the PRD:
+Generated files are stored in `.feature-workflow/` at the project root, not alongside the PRD:
 
 ```
+.feature-workflow/
+└── {feature-name}/
+    ├── implementation.md    # Technical implementation plan
+    └── tracker.json         # Task tracker
+
 docs/
-├── my-feature.prd.md              # Input PRD
-├── my-feature-Technical-Implementation.md  # Implementation plan
-└── my-feature-Task-Tracker.json   # Task tracker
+└── my-feature.prd.md        # PRD stays where user placed it
 ```
 
-Derive names from the PRD filename:
-- `{prd-name}-Technical-Implementation.md`
-- `{prd-name}-Task-Tracker.json`
+**Deriving the feature name:**
+1. Take the PRD filename without path: `my-feature.prd.md` → `my-feature.prd`
+2. Remove extension: `my-feature.prd` → `my-feature`
+3. Remove common PRD suffixes (`.prd`, `-prd`, `_prd`): `my-feature`
+4. Normalize: lowercase, spaces to hyphens
+
+**The `implementationDoc` field in tracker.json:**
+```json
+"implementationDoc": ".feature-workflow/{feature-name}/implementation.md"
+```
 
 ---
 

@@ -50,7 +50,7 @@ Task: prd-planner agent
 Prompt:
   - PRD path and contents
   - Project settings (if found)
-  - Output directory (same as PRD location)
+  - Output location: .feature-workflow/{feature-name}/
 ```
 
 The agent will:
@@ -75,19 +75,26 @@ When the agent completes, report:
 ```
 
 Creates:
-- `docs/user-auth-Technical-Implementation.md`
-- `docs/user-auth-Task-Tracker.json`
+- `.feature-workflow/user-auth/implementation.md`
+- `.feature-workflow/user-auth/tracker.json`
+
+The PRD remains at `docs/user-auth.prd.md` (unchanged).
 
 ## Output Files
 
-Files are created in the same directory as the PRD:
+Generated files are stored in `.feature-workflow/` at the project root:
 
 ```
+.feature-workflow/
+└── my-feature/
+    ├── implementation.md    # Technical implementation plan
+    └── tracker.json         # Task tracker
+
 docs/
-├── my-feature.prd.md                    # Input
-├── my-feature-Technical-Implementation.md  # Created
-└── my-feature-Task-Tracker.json         # Created
+└── my-feature.prd.md        # PRD stays where you put it
 ```
+
+The feature folder name is derived from the PRD filename.
 
 ## Tips
 

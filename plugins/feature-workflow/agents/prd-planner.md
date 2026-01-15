@@ -75,7 +75,18 @@ Suggest alternatives if you find better approaches.
 
 ### Step 5: Create Implementation Plan
 
-Create a markdown file named `{prd-name}-Technical-Implementation.md` in the same directory as the PRD.
+Create the implementation plan at `.feature-workflow/{feature-name}/implementation.md`.
+
+**Deriving the feature name from PRD path:**
+1. Extract the PRD filename without path (e.g., `docs/User-Auth.prd.md` → `User-Auth.prd.md`)
+2. Remove extension (`.md`) → `User-Auth.prd`
+3. Remove common PRD suffixes (`.prd`, `-prd`, `_prd`, case-insensitive) → `User-Auth`
+4. Normalize: lowercase, replace spaces with hyphens → `user-auth`
+
+**Creating the output directory:**
+1. Determine project root (directory containing `.git` or `package.json`, or cwd)
+2. Create `.feature-workflow/{feature-name}/` directory if it doesn't exist
+3. Write `implementation.md` into this directory
 
 Structure:
 ```markdown
@@ -109,13 +120,13 @@ Structure:
 
 ### Step 6: Create Task Tracker
 
-Create a JSON file named `{prd-name}-Task-Tracker.json` in the same directory.
+Create the task tracker at `.feature-workflow/{feature-name}/tracker.json` (same directory as the implementation doc).
 
 Schema:
 ```json
 {
   "feature": "Feature Name",
-  "implementationDoc": "./{prd-name}-Technical-Implementation.md",
+  "implementationDoc": ".feature-workflow/{feature-name}/implementation.md",
   "createdAt": "ISO-8601 timestamp",
   "phases": [
     {
@@ -213,7 +224,7 @@ Agent:
 1. Reads the PRD document
 2. Searches codebase for auth-related code
 3. Asks questions about OAuth providers, session storage, etc.
-4. Creates docs/user-auth-Technical-Implementation.md
-5. Creates docs/user-auth-Task-Tracker.json with 12 tasks across 3 phases
+4. Creates .feature-workflow/user-auth/implementation.md
+5. Creates .feature-workflow/user-auth/tracker.json with 12 tasks across 3 phases
 6. Reports: "Created implementation plan with 12 tasks across 3 phases: Foundation (3 tasks), Core Auth (6 tasks), Polish (3 tasks). Ready for development."
 </example>

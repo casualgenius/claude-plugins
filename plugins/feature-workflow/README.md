@@ -35,8 +35,10 @@ Analyze a PRD and create implementation documents.
 ```
 
 Creates:
-- `docs/my-feature-Technical-Implementation.md` - Detailed implementation plan
-- `docs/my-feature-Task-Tracker.json` - Task tracker for development
+- `.feature-workflow/my-feature/implementation.md` - Detailed implementation plan
+- `.feature-workflow/my-feature/tracker.json` - Task tracker for development
+
+The PRD stays at `docs/my-feature.prd.md`.
 
 The planning agent will:
 1. Read and analyze your PRD
@@ -50,7 +52,7 @@ Start or continue implementing tasks from a tracker.
 
 ```bash
 # With explicit path
-/feature-workflow:develop docs/my-feature-Task-Tracker.json
+/feature-workflow:develop .feature-workflow/my-feature/tracker.json
 
 # Auto-discover tracker
 /feature-workflow:develop
@@ -78,6 +80,33 @@ Shows:
 - Tasks by status (done, testing, in-progress, blocked, todo)
 - Available tasks ready to start
 - Blocked tasks and their dependencies
+
+## Generated File Location
+
+Feature workflow stores generated files in `.feature-workflow/` at your project root:
+
+```
+.feature-workflow/
+├── user-auth/
+│   ├── implementation.md
+│   └── tracker.json
+└── payment-integration/
+    ├── implementation.md
+    └── tracker.json
+```
+
+Your PRD files stay where you put them. Only the generated implementation plans and trackers go in `.feature-workflow/`.
+
+### Git Ignore (Optional)
+
+You can add `.feature-workflow/` to your `.gitignore` if you don't want to track generated files:
+
+```gitignore
+# Feature workflow generated files (optional)
+.feature-workflow/
+```
+
+Alternatively, commit these files to share implementation plans with your team.
 
 ## Project Settings
 
@@ -237,7 +266,7 @@ Check progress at any time to see:
 ```json
 {
   "feature": "User Authentication",
-  "implementationDoc": "./user-auth-Technical-Implementation.md",
+  "implementationDoc": ".feature-workflow/user-auth/implementation.md",
   "phases": [
     {
       "id": "phase-1",
@@ -300,7 +329,8 @@ The development agent will keep trying to fix test failures. If stuck, it will m
 Check the task's notes in the tracker for the blocker reason. Fix the dependency and re-run develop.
 
 ### Cannot find tracker
-Use explicit path: `/feature-workflow:develop path/to/tracker.json`
+Trackers are stored in `.feature-workflow/{feature-name}/tracker.json`. Use explicit path if auto-discovery fails:
+`/feature-workflow:develop .feature-workflow/my-feature/tracker.json`
 
 ## License
 

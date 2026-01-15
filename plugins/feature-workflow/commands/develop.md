@@ -17,17 +17,19 @@ Execute the development workflow from a task tracker, implementing tasks one by 
 
 ## Arguments
 
-- `[tracker-path]` (optional): Path to the Task-Tracker.json file
-  - If not provided, searches for `*-Task-Tracker.json` files in the project
+- `[tracker-path]` (optional): Path to the tracker.json file
+  - If not provided, searches for trackers in `.feature-workflow/`
 
 ## Process
 
 ### 1. Find Tracker
 
-If no path provided:
+If no path provided, search for trackers in the `.feature-workflow` directory:
 ```
-Glob: **/*-Task-Tracker.json
+Glob: .feature-workflow/**/tracker.json
 ```
+
+Trackers are stored at `.feature-workflow/{feature-name}/tracker.json`.
 
 If multiple trackers found, ask the user which one to use.
 
@@ -120,7 +122,7 @@ When loop ends, report:
 
 ```bash
 # With explicit path
-/feature-workflow:develop docs/user-auth-Task-Tracker.json
+/feature-workflow:develop .feature-workflow/user-auth/tracker.json
 
 # Auto-discover tracker
 /feature-workflow:develop
