@@ -34,8 +34,7 @@ plugins/<plugin-name>/
 ## Marketplace Configuration
 
 The marketplace is configured in `.claude-plugin/marketplace.json`:
-- `pluginRoot` is set to `./plugins` - plugin sources are relative to this directory
-- Each plugin entry needs `name` and `source` (relative path from pluginRoot)
+- Each plugin entry needs `name` and `source` (full relative path like `./plugins/plugin-name`)
 
 ## Installation Commands
 
