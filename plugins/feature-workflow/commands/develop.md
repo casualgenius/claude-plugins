@@ -48,7 +48,16 @@ Read: .claude/feature-workflow.local.md
 
 Repeat until no tasks remain or user stops:
 
-#### a. Pick Next Task
+#### a. Re-read Tracker
+
+**Important**: Always re-read the tracker at the start of each loop iteration:
+```
+Read: <tracker-path>
+```
+
+The task-developer agent updates the tracker after completing each task. Re-reading ensures you see the latest task statuses and can correctly identify which dependencies are now satisfied.
+
+#### b. Pick Next Task
 
 Priority order:
 1. Tasks with status `in-progress` (resume)
@@ -59,14 +68,14 @@ If no tasks available:
 - If blocked tasks exist: Report blockers and exit
 - If all done: Report completion and exit
 
-#### b. Extract Task Context
+#### c. Extract Task Context
 
 For the selected task, extract:
 - Task details (requirements, acceptance criteria, notes)
 - Relevant section from Implementation document
 - Project settings (if available)
 
-#### c. Launch Task Developer Agent
+#### d. Launch Task Developer Agent
 
 Use the Task tool with subagent_type to spawn task-developer:
 
@@ -86,13 +95,13 @@ The agent will:
 4. Commit the changes
 5. Return status (complete, blocked, or error)
 
-#### d. Handle Result
+#### e. Handle Result
 
 - **Complete**: Continue to next task
 - **Blocked**: Note the blocker, continue to next available task
 - **Error**: Stop and report to user
 
-#### e. Report Progress
+#### f. Report Progress
 
 After each task, briefly report:
 - Task completed/blocked
