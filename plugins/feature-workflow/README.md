@@ -105,6 +105,62 @@ Create `.claude/feature-workflow.local.md` to configure project-specific setting
 - Commit style: conventional
 ```
 
+## Skill Loading
+
+The plugin supports loading skills from other installed plugins on-demand.
+
+### Why Selective Loading?
+
+Spawned agents don't automatically have access to skills from other plugins. By configuring skill references in your settings file, agents can load relevant knowledge based on task context - keeping context focused and efficient.
+
+### Configuring Skills
+
+Add an "Available Skills" section to your `.claude/feature-workflow.local.md`:
+
+```markdown
+## Available Skills
+
+### Frontend
+Use when task involves React, UI, or components:
+- React: ~/.claude/plugins/my-plugin/skills/react/SKILL.md
+- Storybook: ~/.claude/plugins/my-plugin/skills/storybook/SKILL.md
+
+### Backend
+Use when task involves API or server code:
+- API patterns: ~/.claude/plugins/my-plugin/skills/api/SKILL.md
+
+### Database
+Use when task involves database operations:
+- Supabase: ~/.claude/plugins/my-plugin/skills/supabase/SKILL.md
+
+### Testing
+Use when writing or modifying tests:
+- Vitest: ~/.claude/plugins/my-plugin/skills/vitest/SKILL.md
+```
+
+### How It Works
+
+1. Agent reads settings and discovers available skills
+2. Agent analyzes current task requirements
+3. Agent loads only skills matching the task context
+4. Agent applies patterns from loaded skills
+
+This keeps context focused - a database migration task won't load frontend skills.
+
+### Skill Hints
+
+The prd-planner can add `skillHints` to tasks during planning:
+
+```json
+{
+  "id": "task-003",
+  "title": "Create login form",
+  "skillHints": ["Frontend", "Testing"]
+}
+```
+
+This helps task-developer prioritize which skills to load.
+
 ### Default Settings
 
 If no settings file exists:

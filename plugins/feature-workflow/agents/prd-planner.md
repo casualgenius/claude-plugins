@@ -172,6 +172,33 @@ If a settings file exists at `.claude/feature-workflow.local.md`, read it to und
 
 Incorporate these requirements into your task definitions.
 
+## Loading Project Skills
+
+When analyzing the PRD and planning tasks, check for available skills in the settings file.
+
+1. **Read settings file** if it exists
+2. **Look for "Available Skills" section** with categorized skill paths
+3. **Load architecture/pattern skills** relevant to the feature being planned
+4. **Add skillHints to tasks** to help task-developer know which skills to load
+
+When creating tasks, include a `skillHints` field:
+
+```json
+{
+  "id": "task-003",
+  "title": "Create login form component",
+  "skillHints": ["Frontend", "Testing"],
+  ...
+}
+```
+
+**Mapping task types to skill categories**:
+- UI/component tasks → Frontend
+- API/endpoint tasks → Backend
+- Schema/migration tasks → Database
+- Test-related tasks → Testing
+- AI/LLM tasks → LLM (if available)
+
 ## Completion
 
 When you have created both files:

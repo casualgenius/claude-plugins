@@ -36,6 +36,30 @@ You will receive:
 - **Implementation doc path**: Path to the Technical Implementation markdown
 - **Project settings**: If `.claude/feature-workflow.local.md` exists
 
+## Loading Project Skills
+
+After reading the settings file, check for an "Available Skills" section.
+
+1. **Parse available skills**: Extract skill categories (e.g., Frontend, Backend, Database, Testing) and their file paths
+2. **Check for skillHints**: If the task has a `skillHints` field, prioritize those categories
+3. **Analyze task context**: Look at title, requirements, and files involved
+4. **Match relevant categories**:
+   - Task mentions "component", "UI", "page", "form" → load Frontend skills
+   - Task mentions "API", "endpoint", "route", "handler" → load Backend skills
+   - Task mentions "database", "migration", "schema", "query" → load Database skills
+   - Task involves creating/modifying test files → load Testing skills
+5. **Read only matched skills**: Use Read tool to load relevant SKILL.md files
+6. **Apply skill knowledge**: Follow patterns and conventions from loaded skills
+
+**Example**:
+Task: "Create login form component with validation"
+- skillHints: ["Frontend", "Testing"]
+- Matches: Frontend (component, form), Testing (from hints)
+- Load: React patterns skill, Storybook skill, Vitest skill
+- Skip: Backend, Database skills
+
+**Important**: Don't load all skills - only those relevant to the specific task.
+
 ## Process
 
 ### Step 1: Understand the Task

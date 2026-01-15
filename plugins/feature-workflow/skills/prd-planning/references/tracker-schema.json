@@ -133,6 +133,14 @@
           "commitHash": {
             "type": "string",
             "description": "Git commit hash when task was completed"
+          },
+          "skillHints": {
+            "type": "array",
+            "description": "Skill categories relevant to this task (e.g., Frontend, Backend, Database, Testing). Helps task-developer load appropriate skills.",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           }
         }
       }
@@ -197,7 +205,8 @@
               "addedBy": "task-001"
             }
           ],
-          "complexity": "medium"
+          "complexity": "medium",
+          "skillHints": ["Frontend", "Testing"]
         }
       ]
     }
