@@ -1,7 +1,8 @@
 ---
 description: Plan a feature implementation from a PRD document. Analyzes the PRD and codebase, asks clarifying questions, then creates a Technical Implementation Plan and Task Tracker.
 argument-hint: <prd-path>
-allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion
+context: fork
+agent: prd-planner
 ---
 
 # Plan Command
@@ -32,30 +33,41 @@ Look for project-specific settings:
 Read: .claude/feature-workflow.local.md
 ```
 
-If found, these settings will be passed to the planning agent for project-specific requirements (migrations, Storybook, etc.).
+If found, use these settings for project-specific requirements (migrations, Storybook, etc.).
 
-### 3. Launch PRD Planner Agent
+### 3. Analyze PRD and Codebase
 
-Use the Task tool to launch the prd-planner agent with full context:
+1. Read and analyze the PRD document completely
+2. Explore the existing codebase to understand architecture
+3. Identify integration points and dependencies
 
-```
-Task: prd-planner agent
-Prompt:
-  - PRD path and contents
-  - Project settings (if found)
-  - Output location: .feature-workflow/{feature-name}/
-```
+### 4. Ask Clarifying Questions
 
-The agent will:
-1. Analyze the PRD document
-2. Explore the codebase
-3. Ask clarifying questions interactively
-4. Create the Technical Implementation Plan
-5. Create the Task Tracker
+Use AskUserQuestion to clarify:
+- Ambiguous requirements
+- Missing acceptance criteria
+- Technology choices not specified
+- Priority if scope is large
 
-### 4. Report Results
+DO NOT proceed with assumptions. Ask questions first.
 
-When the agent completes, report:
+### 5. Create Implementation Plan
+
+Create the implementation plan at `.feature-workflow/{feature-name}/implementation.md`.
+
+**Deriving the feature name from PRD path:**
+1. Extract the PRD filename without path
+2. Remove extension (`.md`)
+3. Remove common PRD suffixes (`.prd`, `-prd`, `_prd`)
+4. Normalize: lowercase, replace spaces with hyphens
+
+### 6. Create Task Tracker
+
+Create the task tracker at `.feature-workflow/{feature-name}/tracker.json`.
+
+### 7. Report Results
+
+When complete, report:
 - Path to the created Implementation Plan
 - Path to the created Task Tracker
 - Summary of phases and tasks
