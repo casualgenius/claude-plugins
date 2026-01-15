@@ -6,5 +6,8 @@
     "name": "Alex Stansfield",
     "email": "alex@casualgenius.com"
   },
+  "homepage": "https://github.com/casualgenius/claude-plugins/tree/main/plugins/feature-workflow",
+  "repository": "https://github.com/casualgenius/claude-plugins",
+  "license": "MIT",
   "keywords": ["prd", "workflow", "planning", "development", "automation"]
 }

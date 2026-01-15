@@ -1,6 +1,8 @@
 ---
 name: prd-planning
 description: Use when planning feature implementations from PRD documents, creating technical implementation plans, breaking down work into tasks, or structuring task trackers for development workflows.
+allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, TodoWrite
+user-invocable: false
 ---
 
 # PRD Planning Skill

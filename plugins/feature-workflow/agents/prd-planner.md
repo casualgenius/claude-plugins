@@ -10,6 +10,7 @@ tools:
   - Grep
   - AskUserQuestion
   - TodoWrite
+skills: prd-planning
 ---
 
 # PRD Planner Agent

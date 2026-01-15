@@ -12,6 +12,7 @@ tools:
   - Bash
   - TodoWrite
   - LS
+skills: task-development
 ---
 
 # Task Developer Agent

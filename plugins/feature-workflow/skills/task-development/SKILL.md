@@ -1,6 +1,8 @@
 ---
 name: task-development
 description: Use when implementing tasks from a feature workflow task tracker, following the pick-develop-test-commit cycle, or understanding how to work with task trackers during development.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, LS
+user-invocable: false
 ---
 
 # Task Development Skill
