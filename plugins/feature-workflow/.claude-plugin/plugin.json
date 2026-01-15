@@ -1,0 +1,10 @@
+{
+  "name": "feature-workflow",
+  "version": "1.0.0",
+  "description": "PRD-driven development workflow with automated planning and task execution",
+  "author": {
+    "name": "Alex Stansfield",
+    "email": "alex@casualgenius.com"
+  },
+  "keywords": ["prd", "workflow", "planning", "development", "automation"]
+}

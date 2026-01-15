@@ -1,0 +1,26 @@
+{
+  "name": "casualgenius",
+  "owner": {
+    "name": "Alex Stansfield",
+    "email": "alex@casualgenius.com"
+  },
+  "metadata": {
+    "description": "A collection of Claude Code plugins",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "feature-workflow",
+      "source": "./feature-workflow",
+      "description": "PRD-driven development workflow with automated planning and task execution",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alex Stansfield",
+        "email": "alex@casualgenius.com"
+      },
+      "keywords": ["prd", "workflow", "planning", "development", "automation"],
+      "category": "workflow"
+    }
+  ]
+}

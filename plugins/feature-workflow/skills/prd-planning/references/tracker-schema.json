@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Workflow Task Tracker",
+  "description": "Schema for tracking tasks in the feature-workflow development process",
+  "type": "object",
+  "required": ["feature", "implementationDoc", "phases", "tasks"],
+  "properties": {
+    "feature": {
+      "type": "string",
+      "description": "Name of the feature being implemented"
+    },
+    "implementationDoc": {
+      "type": "string",
+      "description": "Relative path to the Technical Implementation markdown file"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the tracker was created"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the tracker was last updated"
+    },
+    "phases": {
+      "type": "array",
+      "description": "Implementation phases for organizing tasks",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^phase-[0-9]+$",
+            "description": "Unique phase identifier (e.g., phase-1, phase-2)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable phase name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the phase goals"
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "description": "List of implementation tasks",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "phase", "requirements", "acceptanceCriteria", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^task-[0-9]{3}$",
+            "description": "Unique task identifier (e.g., task-001, task-002)"
+          },
+          "title": {
+            "type": "string",
+            "description": "Brief descriptive title for the task"
+          },
+          "phase": {
+            "type": "string",
+            "description": "Phase ID this task belongs to"
+          },
+          "requirements": {
+            "type": "array",
+            "description": "List of specific requirements for the task",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "acceptanceCriteria": {
+            "type": "array",
+            "description": "Testable criteria that define task completion",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["todo", "in-progress", "testing", "blocked", "done"],
+            "description": "Current status of the task"
+          },
+          "dependsOn": {
+            "type": "array",
+            "description": "Task IDs that must be completed before this task can start",
+            "items": {
+              "type": "string",
+              "pattern": "^task-[0-9]{3}$"
+            },
+            "default": []
+          },
+          "notes": {
+            "type": "array",
+            "description": "Developer notes added during implementation",
+            "items": {
+              "type": "object",
+              "required": ["timestamp", "content"],
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "addedBy": {
+                  "type": "string",
+                  "description": "Identifier of who added the note (task ID or 'user')"
+                }
+              }
+            },
+            "default": []
+          },
+          "complexity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Estimated complexity of the task"
+          },
+          "filesModified": {
+            "type": "array",
+            "description": "List of files modified during implementation (populated when done)",
+            "items": {
+              "type": "string"
+            }
+          },
+          "commitHash": {
+            "type": "string",
+            "description": "Git commit hash when task was completed"
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "feature": "User Authentication",
+      "implementationDoc": "./user-auth-Technical-Implementation.md",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "phases": [
+        {
+          "id": "phase-1",
+          "name": "Foundation",
+          "description": "Set up authentication infrastructure"
+        },
+        {
+          "id": "phase-2",
+          "name": "Implementation",
+          "description": "Implement login and signup flows"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-001",
+          "title": "Set up authentication provider",
+          "phase": "phase-1",
+          "requirements": [
+            "Configure Supabase auth client",
+            "Set up environment variables"
+          ],
+          "acceptanceCriteria": [
+            "Auth client initializes without errors",
+            "Environment variables documented"
+          ],
+          "status": "done",
+          "dependsOn": [],
+          "notes": [],
+          "complexity": "low",
+          "commitHash": "abc123"
+        },
+        {
+          "id": "task-002",
+          "title": "Create login form component",
+          "phase": "phase-2",
+          "requirements": [
+            "Create LoginForm component",
+            "Add email and password validation",
+            "Handle authentication errors"
+          ],
+          "acceptanceCriteria": [
+            "Form validates input before submission",
+            "Error messages display correctly",
+            "Successful login redirects to dashboard"
+          ],
+          "status": "in-progress",
+          "dependsOn": ["task-001"],
+          "notes": [
+            {
+              "timestamp": "2025-01-15T11:30:00Z",
+              "content": "Using react-hook-form with zod schema for validation",
+              "addedBy": "task-001"
+            }
+          ],
+          "complexity": "medium"
+        }
+      ]
+    }
+  ]
+}
