@@ -21,7 +21,13 @@ First, add the marketplace to Claude Code:
 Then install this plugin:
 
 ```bash
-/plugin install casualgenius:feature-workflow
+/plugin install feature-workflow
+```
+
+Or with explicit marketplace (if you have multiple marketplaces):
+
+```bash
+/plugin install feature-workflow@casualgenius-plugins
 ```
 
 ## Commands

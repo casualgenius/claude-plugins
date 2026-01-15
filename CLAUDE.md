@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Claude Code plugin marketplace. Users add this marketplace to Claude Code and can then install individual plugins from it.
 
-**Marketplace name:** `casualgenius`
+**Marketplace name:** `casualgenius-plugins`
 **GitHub:** `casualgenius/claude-plugins`
 
 ## Adding a New Plugin
@@ -42,6 +42,7 @@ The marketplace is configured in `.claude-plugin/marketplace.json`:
 # Add marketplace
 /plugin marketplace add casualgenius/claude-plugins
 
-# Install a plugin
-/plugin install casualgenius:<plugin-name>
+# Install a plugin (marketplace is optional if no name conflicts)
+/plugin install <plugin-name>
+/plugin install <plugin-name>@casualgenius-plugins
 ```
