@@ -6,12 +6,12 @@
   },
   "metadata": {
     "description": "A collection of Claude Code plugins",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
-      "name": "feature-workflow",
-      "source": "./plugins/feature-workflow",
+      "name": "prd-to-feature",
+      "source": "./plugins/prd-to-feature",
       "description": "PRD-driven development workflow with automated planning and task execution",
       "version": "1.1.0",
       "author": {

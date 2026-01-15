@@ -19,14 +19,14 @@ Or from a local clone:
 Then install individual plugins:
 
 ```bash
-/plugin install casualgenius:feature-workflow
+/plugin install casualgenius:prd-to-feature
 ```
 
 ## Available Plugins
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
-| [feature-workflow](plugins/feature-workflow/README.md) | PRD-driven development workflow with automated planning and task execution | 1.0.0 |
+| [prd-to-feature](plugins/prd-to-feature/README.md) | PRD-driven development workflow with automated planning and task execution | 1.1.0 |
 
 ## Contributing
 

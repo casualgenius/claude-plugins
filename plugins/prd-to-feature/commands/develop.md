@@ -11,18 +11,18 @@ Execute the development workflow from a task tracker, implementing tasks one by 
 ## Arguments
 
 - `[tracker-path]` (optional): Path to the tracker.json file
-  - If not provided, searches for trackers in `.feature-workflow/`
+  - If not provided, searches for trackers in `.prd-to-feature/`
 
 ## Process
 
 ### 1. Find Tracker
 
-If no path provided, search for trackers in the `.feature-workflow` directory:
+If no path provided, search for trackers in the `.prd-to-feature` directory:
 ```
-Glob: .feature-workflow/**/tracker.json
+Glob: .prd-to-feature/**/tracker.json
 ```
 
-Trackers are stored at `.feature-workflow/{feature-name}/tracker.json`.
+Trackers are stored at `.prd-to-feature/{feature-name}/tracker.json`.
 
 If multiple trackers found, ask the user which one to use.
 
@@ -36,7 +36,7 @@ Read: <implementation-doc-path from tracker>
 
 Also check for project settings:
 ```
-Read: .claude/feature-workflow.local.md
+Read: .claude/prd-to-feature.local.md
 ```
 
 ### 3. Development Loop
@@ -115,10 +115,10 @@ When loop ends, report:
 
 ```bash
 # With explicit path
-/feature-workflow:develop .feature-workflow/user-auth/tracker.json
+/prd-to-feature:develop .prd-to-feature/user-auth/tracker.json
 
 # Auto-discover tracker
-/feature-workflow:develop
+/prd-to-feature:develop
 ```
 
 ## Stopping Development
@@ -143,5 +143,5 @@ Next task = first of:
 - Development continues automatically until all tasks are done
 - Each task runs in a fresh agent context (no context compaction issues)
 - Blocked tasks are skipped and can be retried later
-- Use `/feature-workflow:status` to check progress
+- Use `/prd-to-feature:status` to check progress
 - All commits include the updated tracker file

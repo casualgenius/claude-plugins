@@ -11,15 +11,15 @@ Display the current progress of a feature development workflow.
 ## Arguments
 
 - `[tracker-path]` (optional): Path to the tracker.json file
-  - If not provided, searches for trackers in `.feature-workflow/`
+  - If not provided, searches for trackers in `.prd-to-feature/`
 
 ## Process
 
 ### 1. Find Tracker
 
-If no path provided, search for trackers in the `.feature-workflow` directory:
+If no path provided, search for trackers in the `.prd-to-feature` directory:
 ```
-Glob: .feature-workflow/**/tracker.json
+Glob: .prd-to-feature/**/tracker.json
 ```
 
 If multiple trackers found, list them all with their progress.
@@ -96,10 +96,10 @@ Blocked Tasks:
 
 ```bash
 # With explicit path
-/feature-workflow:status .feature-workflow/user-auth/tracker.json
+/prd-to-feature:status .prd-to-feature/user-auth/tracker.json
 
 # Auto-discover (shows all trackers)
-/feature-workflow:status
+/prd-to-feature:status
 ```
 
 ## Multiple Trackers
@@ -109,17 +109,17 @@ If multiple trackers are found and no path specified, show summary for each:
 ```
 Found 2 task trackers:
 
-1. .feature-workflow/user-auth/tracker.json
+1. .prd-to-feature/user-auth/tracker.json
    Feature: User Authentication
    Progress: 7/12 tasks (58%)
    Status: 2 in-progress, 3 todo
 
-2. .feature-workflow/payment-integration/tracker.json
+2. .prd-to-feature/payment-integration/tracker.json
    Feature: Payment Integration
    Progress: 0/8 tasks (0%)
    Status: 8 todo
 
-Use /feature-workflow:status <path> for detailed view.
+Use /prd-to-feature:status <path> for detailed view.
 ```
 
 ## Tips

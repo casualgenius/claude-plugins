@@ -1,12 +1,12 @@
 {
-  "name": "feature-workflow",
+  "name": "prd-to-feature",
   "version": "1.1.0",
   "description": "PRD-driven development workflow with automated planning and task execution",
   "author": {
     "name": "Alex Stansfield",
     "email": "alex@casualgenius.com"
   },
-  "homepage": "https://github.com/casualgenius/claude-plugins/tree/main/plugins/feature-workflow",
+  "homepage": "https://github.com/casualgenius/claude-plugins/tree/main/plugins/prd-to-feature",
   "repository": "https://github.com/casualgenius/claude-plugins",
   "license": "MIT",
   "keywords": ["prd", "workflow", "planning", "development", "automation"]

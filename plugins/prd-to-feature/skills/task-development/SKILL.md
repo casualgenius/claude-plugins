@@ -71,7 +71,7 @@ Follow these guidelines:
 - Use consistent naming conventions
 - Keep changes focused on the task requirements
 
-**Project-Specific Rules** (check `.claude/feature-workflow.local.md` if it exists):
+**Project-Specific Rules** (check `.claude/prd-to-feature.local.md` if it exists):
 - Database changes: Use the project's migration tool
 - React components: Create Storybook stories if required
 - Logic code: Create unit tests if required
@@ -189,7 +189,7 @@ If you cannot complete a task:
 
 ## Project Settings
 
-Check for project-specific settings at `.claude/feature-workflow.local.md`:
+Check for project-specific settings at `.claude/prd-to-feature.local.md`:
 
 ```markdown
 # Feature Workflow Settings

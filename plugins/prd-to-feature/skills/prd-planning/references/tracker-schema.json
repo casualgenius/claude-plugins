@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Feature Workflow Task Tracker",
-  "description": "Schema for tracking tasks in the feature-workflow development process",
+  "description": "Schema for tracking tasks in the prd-to-feature development process",
   "type": "object",
   "required": ["feature", "implementationDoc", "phases", "tasks"],
   "properties": {
@@ -11,7 +11,7 @@
     },
     "implementationDoc": {
       "type": "string",
-      "description": "Path to the implementation.md file (typically .feature-workflow/{feature-name}/implementation.md)"
+      "description": "Path to the implementation.md file (typically .prd-to-feature/{feature-name}/implementation.md)"
     },
     "createdAt": {
       "type": "string",
@@ -149,7 +149,7 @@
   "examples": [
     {
       "feature": "User Authentication",
-      "implementationDoc": ".feature-workflow/user-auth/implementation.md",
+      "implementationDoc": ".prd-to-feature/user-auth/implementation.md",
       "createdAt": "2025-01-15T10:00:00Z",
       "phases": [
         {

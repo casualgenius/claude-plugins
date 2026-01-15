@@ -136,7 +136,7 @@ Create the task tracker JSON file with this schema:
 ```json
 {
   "feature": "Feature Name",
-  "implementationDoc": ".feature-workflow/feature-name/implementation.md",
+  "implementationDoc": ".prd-to-feature/feature-name/implementation.md",
   "createdAt": "2025-01-15T00:00:00Z",
   "phases": [
     {
@@ -223,10 +223,10 @@ task-004 (independent) ────────┘
 
 ## Output File Location
 
-Generated files are stored in `.feature-workflow/` at the project root, not alongside the PRD:
+Generated files are stored in `.prd-to-feature/` at the project root, not alongside the PRD:
 
 ```
-.feature-workflow/
+.prd-to-feature/
 └── {feature-name}/
     ├── implementation.md    # Technical implementation plan
     └── tracker.json         # Task tracker
@@ -243,7 +243,7 @@ docs/
 
 **The `implementationDoc` field in tracker.json:**
 ```json
-"implementationDoc": ".feature-workflow/{feature-name}/implementation.md"
+"implementationDoc": ".prd-to-feature/{feature-name}/implementation.md"
 ```
 
 ---

@@ -33,9 +33,9 @@ For the task you receive:
 You will receive:
 - **Task details**: ID, title, requirements, acceptance criteria, notes
 - **Implementation section**: Relevant part of the Technical Implementation doc
-- **Tracker path**: Path to tracker.json (typically `.feature-workflow/{feature-name}/tracker.json`)
-- **Implementation doc path**: Path to implementation.md (typically `.feature-workflow/{feature-name}/implementation.md`)
-- **Project settings**: If `.claude/feature-workflow.local.md` exists
+- **Tracker path**: Path to tracker.json (typically `.prd-to-feature/{feature-name}/tracker.json`)
+- **Implementation doc path**: Path to implementation.md (typically `.prd-to-feature/{feature-name}/implementation.md`)
+- **Project settings**: If `.claude/prd-to-feature.local.md` exists
 
 ## Loading Project Skills
 

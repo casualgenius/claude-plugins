@@ -1,4 +1,4 @@
-# Feature Workflow Plugin
+# PRD to Feature Plugin
 
 A Claude Code plugin for PRD-driven feature development. Takes a Product Requirements Document (PRD) and guides you through planning and implementation with automated task tracking.
 
@@ -21,28 +21,28 @@ First, add the marketplace to Claude Code:
 Then install this plugin:
 
 ```bash
-/plugin install feature-workflow
+/plugin install prd-to-feature
 ```
 
 Or with explicit marketplace (if you have multiple marketplaces):
 
 ```bash
-/plugin install feature-workflow@casualgenius-plugins
+/plugin install prd-to-feature@casualgenius-plugins
 ```
 
 ## Commands
 
-### `/feature-workflow:plan <prd-path>`
+### `/prd-to-feature:plan <prd-path>`
 
 Analyze a PRD and create implementation documents.
 
 ```bash
-/feature-workflow:plan docs/my-feature.prd.md
+/prd-to-feature:plan docs/my-feature.prd.md
 ```
 
 Creates:
-- `.feature-workflow/my-feature/implementation.md` - Detailed implementation plan
-- `.feature-workflow/my-feature/tracker.json` - Task tracker for development
+- `.prd-to-feature/my-feature/implementation.md` - Detailed implementation plan
+- `.prd-to-feature/my-feature/tracker.json` - Task tracker for development
 
 The PRD stays at `docs/my-feature.prd.md`.
 
@@ -52,16 +52,16 @@ The planning agent will:
 3. Ask clarifying questions
 4. Generate the implementation plan and task tracker
 
-### `/feature-workflow:develop [tracker-path]`
+### `/prd-to-feature:develop [tracker-path]`
 
 Start or continue implementing tasks from a tracker.
 
 ```bash
 # With explicit path
-/feature-workflow:develop .feature-workflow/my-feature/tracker.json
+/prd-to-feature:develop .prd-to-feature/my-feature/tracker.json
 
 # Auto-discover tracker
-/feature-workflow:develop
+/prd-to-feature:develop
 ```
 
 The development loop:
@@ -73,12 +73,12 @@ The development loop:
 
 Press `Ctrl+C` to stop development at any time.
 
-### `/feature-workflow:status [tracker-path]`
+### `/prd-to-feature:status [tracker-path]`
 
 Check progress on a feature.
 
 ```bash
-/feature-workflow:status
+/prd-to-feature:status
 ```
 
 Shows:
@@ -89,10 +89,10 @@ Shows:
 
 ## Generated File Location
 
-Feature workflow stores generated files in `.feature-workflow/` at your project root:
+Feature workflow stores generated files in `.prd-to-feature/` at your project root:
 
 ```
-.feature-workflow/
+.prd-to-feature/
 ├── user-auth/
 │   ├── implementation.md
 │   └── tracker.json
@@ -101,22 +101,22 @@ Feature workflow stores generated files in `.feature-workflow/` at your project 
     └── tracker.json
 ```
 
-Your PRD files stay where you put them. Only the generated implementation plans and trackers go in `.feature-workflow/`.
+Your PRD files stay where you put them. Only the generated implementation plans and trackers go in `.prd-to-feature/`.
 
 ### Git Ignore (Optional)
 
-You can add `.feature-workflow/` to your `.gitignore` if you don't want to track generated files:
+You can add `.prd-to-feature/` to your `.gitignore` if you don't want to track generated files:
 
 ```gitignore
 # Feature workflow generated files (optional)
-.feature-workflow/
+.prd-to-feature/
 ```
 
 Alternatively, commit these files to share implementation plans with your team.
 
 ## Project Settings
 
-Create `.claude/feature-workflow.local.md` to configure project-specific settings:
+Create `.claude/prd-to-feature.local.md` to configure project-specific settings:
 
 ```markdown
 # Feature Workflow Settings
@@ -150,7 +150,7 @@ Spawned agents don't automatically have access to skills from other plugins. By 
 
 ### Configuring Skills
 
-Add an "Available Skills" section to your `.claude/feature-workflow.local.md`:
+Add an "Available Skills" section to your `.claude/prd-to-feature.local.md`:
 
 ```markdown
 ## Available Skills
@@ -230,7 +230,7 @@ Implement email/password authentication using Supabase...
 ### 2. Plan the Implementation
 
 ```bash
-/feature-workflow:plan docs/user-auth.prd.md
+/prd-to-feature:plan docs/user-auth.prd.md
 ```
 
 The agent will analyze your PRD, ask questions, and create:
@@ -247,7 +247,7 @@ Check the generated documents:
 ### 4. Develop
 
 ```bash
-/feature-workflow:develop
+/prd-to-feature:develop
 ```
 
 Tasks are implemented automatically:
@@ -259,7 +259,7 @@ Tasks are implemented automatically:
 ### 5. Monitor Progress
 
 ```bash
-/feature-workflow:status
+/prd-to-feature:status
 ```
 
 Check progress at any time to see:
@@ -272,7 +272,7 @@ Check progress at any time to see:
 ```json
 {
   "feature": "User Authentication",
-  "implementationDoc": ".feature-workflow/user-auth/implementation.md",
+  "implementationDoc": ".prd-to-feature/user-auth/implementation.md",
   "phases": [
     {
       "id": "phase-1",
@@ -335,8 +335,8 @@ The development agent will keep trying to fix test failures. If stuck, it will m
 Check the task's notes in the tracker for the blocker reason. Fix the dependency and re-run develop.
 
 ### Cannot find tracker
-Trackers are stored in `.feature-workflow/{feature-name}/tracker.json`. Use explicit path if auto-discovery fails:
-`/feature-workflow:develop .feature-workflow/my-feature/tracker.json`
+Trackers are stored in `.prd-to-feature/{feature-name}/tracker.json`. Use explicit path if auto-discovery fails:
+`/prd-to-feature:develop .prd-to-feature/my-feature/tracker.json`
 
 ## License
 

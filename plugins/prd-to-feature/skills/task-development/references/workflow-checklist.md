@@ -116,7 +116,7 @@ Pick a different task or wait.
 
 ## Settings File Location
 
-Project settings: `.claude/feature-workflow.local.md`
+Project settings: `.claude/prd-to-feature.local.md`
 
 If missing, defaults are used:
 - Typecheck: `npm run typecheck`

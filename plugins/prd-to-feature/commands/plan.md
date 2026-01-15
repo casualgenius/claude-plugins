@@ -29,7 +29,7 @@ If the file doesn't exist, inform the user and exit.
 Look for project-specific settings:
 
 ```
-Read: .claude/feature-workflow.local.md
+Read: .claude/prd-to-feature.local.md
 ```
 
 If found, these settings will be passed to the planning agent.
@@ -62,7 +62,7 @@ Prompt must include:
   - Project settings (if found)
   - User's answers to clarifying questions
   - Codebase exploration findings
-  - Output location: .feature-workflow/{feature-name}/
+  - Output location: .prd-to-feature/{feature-name}/
 ```
 
 The agent will create:
@@ -81,26 +81,26 @@ When the agent completes, report:
 - Path to the created Implementation Plan
 - Path to the created Task Tracker
 - Summary of phases and tasks
-- Next steps: Run `/feature-workflow:develop` to start implementation
+- Next steps: Run `/prd-to-feature:develop` to start implementation
 
 ## Example Usage
 
 ```
-/feature-workflow:plan docs/user-auth.prd.md
+/prd-to-feature:plan docs/user-auth.prd.md
 ```
 
 Creates:
-- `.feature-workflow/user-auth/implementation.md`
-- `.feature-workflow/user-auth/tracker.json`
+- `.prd-to-feature/user-auth/implementation.md`
+- `.prd-to-feature/user-auth/tracker.json`
 
 The PRD remains at `docs/user-auth.prd.md` (unchanged).
 
 ## Output Files
 
-Generated files are stored in `.feature-workflow/` at the project root:
+Generated files are stored in `.prd-to-feature/` at the project root:
 
 ```
-.feature-workflow/
+.prd-to-feature/
 └── my-feature/
     ├── implementation.md    # Technical implementation plan
     └── tracker.json         # Task tracker
@@ -116,4 +116,4 @@ The feature folder name is derived from the PRD filename.
 - Provide a well-structured PRD with clear requirements
 - The agent will ask questions - answer them to improve the plan
 - Review the implementation plan before starting development
-- Use `/feature-workflow:status` to check progress at any time
+- Use `/prd-to-feature:status` to check progress at any time

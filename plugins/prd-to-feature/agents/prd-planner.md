@@ -67,7 +67,7 @@ Note any concerns in your implementation plan.
 
 ### Step 4: Create Implementation Plan
 
-Create the implementation plan at `.feature-workflow/{feature-name}/implementation.md`.
+Create the implementation plan at `.prd-to-feature/{feature-name}/implementation.md`.
 
 **Deriving the feature name from PRD path:**
 1. Extract the PRD filename without path (e.g., `docs/User-Auth.prd.md` → `User-Auth.prd.md`)
@@ -77,7 +77,7 @@ Create the implementation plan at `.feature-workflow/{feature-name}/implementati
 
 **Creating the output directory:**
 1. Determine project root (directory containing `.git` or `package.json`, or cwd)
-2. Create `.feature-workflow/{feature-name}/` directory if it doesn't exist
+2. Create `.prd-to-feature/{feature-name}/` directory if it doesn't exist
 3. Write `implementation.md` into this directory
 
 Structure:
@@ -112,13 +112,13 @@ Structure:
 
 ### Step 5: Create Task Tracker
 
-Create the task tracker at `.feature-workflow/{feature-name}/tracker.json` (same directory as the implementation doc).
+Create the task tracker at `.prd-to-feature/{feature-name}/tracker.json` (same directory as the implementation doc).
 
 Schema:
 ```json
 {
   "feature": "Feature Name",
-  "implementationDoc": ".feature-workflow/{feature-name}/implementation.md",
+  "implementationDoc": ".prd-to-feature/{feature-name}/implementation.md",
   "createdAt": "ISO-8601 timestamp",
   "phases": [
     {
@@ -167,7 +167,7 @@ Use format `phase-1`, `phase-2`, etc.
 
 ## Project Context
 
-If a settings file exists at `.claude/feature-workflow.local.md`, read it to understand:
+If a settings file exists at `.claude/prd-to-feature.local.md`, read it to understand:
 - Database migration requirements
 - Testing requirements (Storybook, unit tests)
 - Build/test commands
@@ -216,7 +216,7 @@ Agent:
 1. Reads the PRD document
 2. Searches codebase for auth-related code
 3. Asks questions about OAuth providers, session storage, etc.
-4. Creates .feature-workflow/user-auth/implementation.md
-5. Creates .feature-workflow/user-auth/tracker.json with 12 tasks across 3 phases
+4. Creates .prd-to-feature/user-auth/implementation.md
+5. Creates .prd-to-feature/user-auth/tracker.json with 12 tasks across 3 phases
 6. Reports: "Created implementation plan with 12 tasks across 3 phases: Foundation (3 tasks), Core Auth (6 tasks), Polish (3 tasks). Ready for development."
 </example>
