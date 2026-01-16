@@ -41,6 +41,16 @@ Read: .claude/prd-to-feature.local.md
 
 ### 3. Development Loop
 
+**IMPORTANT: Sequential Execution Only**
+
+You MUST execute tasks ONE AT A TIME. Never spawn multiple task-developer agents in parallel, even if tasks appear independent:
+- Multiple agents may create conflicting changes
+- Lint/test errors from one agent may confuse another
+- Resource conflicts (dev servers, ports, processes) cause failures
+- Task notes from one agent may be relevant to the next
+
+Wait for each task-developer agent to complete before selecting the next task.
+
 Repeat until no tasks remain or user stops:
 
 #### a. Query Task Status
@@ -99,9 +109,32 @@ Once you have the task ID, extract only that task's details:
 jq --arg id "<task-id>" '.tasks[] | select(.id == $id)' <tracker-path>
 ```
 
-Also extract:
-- Relevant section from Implementation document (use Read tool)
-- Project settings (if available)
+**Extract only the relevant task section** from the Implementation document (do NOT read the full file):
+
+```bash
+# Get the task title
+TASK_TITLE=$(jq -r --arg id "<task-id>" '.tasks[] | select(.id == $id) | .title' <tracker-path>)
+
+# Find the line number where this task's section starts
+START_LINE=$(grep -n "#### Task.*${TASK_TITLE}" <implementation-doc-path> | head -1 | cut -d: -f1)
+
+# Find the next section boundary (next #### or ### heading)
+END_LINE=$(tail -n +$((START_LINE + 1)) <implementation-doc-path> | grep -n "^###" | head -1 | cut -d: -f1)
+if [ -n "$END_LINE" ]; then
+  END_LINE=$((START_LINE + END_LINE - 1))
+else
+  # If no next section found, read ~50 lines
+  END_LINE=$((START_LINE + 50))
+fi
+```
+
+Then use the **Read tool with offset and limit** parameters:
+- `offset`: START_LINE
+- `limit`: END_LINE - START_LINE
+
+This reads only the ~20-50 lines relevant to this task instead of the entire implementation document.
+
+Also extract project settings (if available)
 
 #### d. Launch Task Developer Agent
 

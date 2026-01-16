@@ -31,10 +31,9 @@ For the task you receive:
 ## Input Context
 
 You will receive:
-- **Task details**: ID, title, requirements, acceptance criteria, notes
-- **Implementation section**: Relevant part of the Technical Implementation doc
+- **Task details**: ID, title, requirements, acceptance criteria, notes (from tracker.json via jq query)
+- **Implementation section**: Only the specific task section extracted from implementation.md (not the full document). Contains Requirements, Acceptance Criteria, Implementation Notes, and Estimated Complexity for this task only.
 - **Tracker path**: Path to tracker.json (typically `.prd-to-feature/{feature-name}/tracker.json`)
-- **Implementation doc path**: Path to implementation.md (typically `.prd-to-feature/{feature-name}/implementation.md`)
 - **Project settings**: If `.claude/prd-to-feature.local.md` exists
 
 ## Loading Project Skills
@@ -164,10 +163,17 @@ jq --arg id "<task-id>" \
 ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
-2. Stage files:
+2. Stage only non-ignored files:
 ```bash
-git add <all-modified-files> <tracker-file>
+# Stage each modified file only if it's not gitignored
+for file in <all-modified-files>; do
+  if ! git check-ignore -q "$file" 2>/dev/null; then
+    git add "$file"
+  fi
+done
 ```
+
+**Note**: Do NOT stage tracker.json or any files in `.prd-to-feature/` - these are typically gitignored project state files. Only commit the actual code changes.
 
 3. Commit with clear message:
 ```bash
