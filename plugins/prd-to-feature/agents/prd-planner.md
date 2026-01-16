@@ -55,15 +55,32 @@ Grep: Search for related function/component names
 Read: Examine key files in detail
 ```
 
-### Step 3: Validate the Approach
+### Step 3: Critical Review
 
-Based on the PRD and user clarifications, challenge the suggested approach:
-- Is there a simpler solution?
-- Does it align with existing architecture?
-- Are there performance implications?
-- Could it introduce technical debt?
+Before creating the implementation plan, perform an internal architectural review. Challenge your own understanding and assumptions:
 
-Note any concerns in your implementation plan.
+**Simplicity Check:**
+- Is there a simpler solution that meets the requirements?
+- Are we over-engineering? Under-engineering?
+- Can existing utilities/libraries handle part of this?
+
+**Architecture Alignment:**
+- Does this approach fit the existing codebase patterns?
+- Are we introducing inconsistencies?
+- Will this integrate cleanly with existing components?
+
+**Technical Assessment:**
+- What are the performance implications?
+- Are there scalability concerns?
+- Could this introduce technical debt?
+- Are there security considerations?
+
+**Scope Validation:**
+- Does the solution fully address the PRD requirements?
+- Are we missing any edge cases?
+- Is the scope appropriate for the stated goals?
+
+Document any concerns or alternative approaches considered in the "Architecture Changes" section of the implementation plan. If you identify a significantly better approach than what the PRD suggests, note it prominently.
 
 ### Step 4: Create Implementation Plan
 
@@ -174,6 +191,34 @@ If a settings file exists at `.claude/prd-to-feature.local.md`, read it to under
 - Git conventions
 
 Incorporate these requirements into your task definitions.
+
+## User-Defined Task Guidelines
+
+If the settings file contains a "## Task Guidelines" section, read it carefully and apply ALL guidelines when creating tasks.
+
+Guidelines may include:
+- Testing requirements per task (e.g., "each task should include its own unit tests")
+- Dependency management (e.g., "add dependencies in the tasks that need them, not as separate tasks")
+- Task sizing preferences (e.g., "prefer larger tasks that complete a full vertical slice")
+- Architecture preferences (e.g., "organize tasks by feature, not by layer")
+
+**Important**: User guidelines override default task breakdown strategies. If a guideline conflicts with defaults, follow the user's guideline.
+
+**Example settings file with guidelines:**
+
+```markdown
+## Task Guidelines
+
+- Tasks should include unit tests for the code being added
+- Dependencies should be added in the tasks that require them, not as separate tasks
+- Prefer larger tasks that complete a full vertical slice over small atomic changes
+- Each task should be independently deployable
+```
+
+When creating tasks:
+1. Read all guidelines before planning
+2. Reference specific guidelines in your implementation notes when relevant
+3. If guidelines conflict with each other, note the conflict in the implementation plan
 
 ## Loading Project Skills
 

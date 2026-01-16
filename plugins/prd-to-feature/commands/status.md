@@ -1,7 +1,7 @@
 ---
 description: Show the current progress of a feature workflow. Displays tasks by status and overall completion percentage.
 argument-hint: [tracker-path]
-allowed-tools: Read, Glob
+allowed-tools: Read, Glob, Bash
 ---
 
 # Status Command
@@ -24,27 +24,53 @@ Glob: .prd-to-feature/**/tracker.json
 
 If multiple trackers found, list them all with their progress.
 
-### 2. Read Tracker
+### 2. Calculate Statistics with jq
 
+Use `jq` to compute all statistics in a single efficient query:
+
+```bash
+jq '{
+  feature: .feature,
+  implementationDoc: .implementationDoc,
+  total: (.tasks | length),
+  done: [.tasks[] | select(.status == "done")] | length,
+  testing: [.tasks[] | select(.status == "testing")] | length,
+  inProgress: [.tasks[] | select(.status == "in-progress")] | length,
+  blocked: [.tasks[] | select(.status == "blocked")] | length,
+  todo: [.tasks[] | select(.status == "todo")] | length,
+  available: (
+    .tasks as $all |
+    [.tasks[] |
+      select(.status == "todo") |
+      select(.dependsOn | length == 0 or all(. as $dep | $all[] | select(.id == $dep) | .status == "done"))
+    ] | length
+  ),
+  tasksByStatus: {
+    done: [.tasks[] | select(.status == "done") | {id, title}],
+    testing: [.tasks[] | select(.status == "testing") | {id, title}],
+    inProgress: [.tasks[] | select(.status == "in-progress") | {id, title}],
+    blocked: [.tasks[] | select(.status == "blocked") | {id, title, dependsOn}],
+    todo: [.tasks[] | select(.status == "todo") | {id, title}]
+  }
+}' <tracker-path>
 ```
-Read: <tracker-path>
+
+This single query produces all needed statistics without multiple file reads.
+
+### 3. Get Blocker Details (if needed)
+
+For blocked tasks, get details on what they're waiting for:
+
+```bash
+jq '
+  .tasks as $all |
+  [.tasks[] | select(.status == "blocked") | {
+    id,
+    title,
+    waitingFor: [.dependsOn[] as $dep | $all[] | select(.id == $dep and .status != "done") | {id, title, status}]
+  }]
+' <tracker-path>
 ```
-
-Parse the JSON to extract task information.
-
-### 3. Calculate Statistics
-
-Count tasks by status:
-- `done`: Completed tasks
-- `testing`: Tasks being verified
-- `in-progress`: Tasks currently being worked on
-- `blocked`: Tasks that cannot proceed
-- `todo`: Tasks not yet started
-
-Calculate:
-- Total tasks
-- Completion percentage: (done / total) * 100
-- Available tasks (todo with met dependencies)
 
 ### 4. Display Progress
 
@@ -84,7 +110,7 @@ Blocked: 1 task
 
 ### 5. Show Blockers (if any)
 
-For blocked tasks, show what they're waiting for:
+Use the blocker details from Step 3 to show what blocked tasks are waiting for:
 
 ```
 Blocked Tasks:

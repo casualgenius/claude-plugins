@@ -46,15 +46,17 @@ The planning command will have already gathered user clarifications about:
 
 These answers will be provided as part of your input context. Use them to inform your plan.
 
-### 4. Validate the Approach
+### 4. Critical Review (Self-Assessment)
 
-Challenge the PRD's suggested approach:
-- Is there a simpler solution?
-- Does it align with existing architecture?
-- Are there performance implications?
-- Does it introduce technical debt?
+Before finalizing your plan, critically examine your own approach:
 
-Suggest alternatives if you find better approaches.
+- **Simplicity**: Is there a simpler solution? Are you over-engineering?
+- **Alignment**: Does this fit existing patterns and architecture?
+- **Performance**: Any scalability or performance concerns?
+- **Completeness**: Does this fully address the PRD requirements?
+- **Debt**: Will this create technical debt?
+
+This is an internal review step - you're questioning your own approach, not seeking external validation. Document concerns and alternatives in the implementation plan.
 
 ---
 
@@ -245,6 +247,44 @@ docs/
 ```json
 "implementationDoc": ".prd-to-feature/{feature-name}/implementation.md"
 ```
+
+---
+
+## Task Guidelines (User Configuration)
+
+Users can define custom task guidelines in their settings file at `.claude/prd-to-feature.local.md`. These guidelines influence how you create and structure tasks.
+
+### Reading Guidelines
+
+1. Check if settings file exists
+2. Look for a "## Task Guidelines" section
+3. Parse all guidelines (can be bullet points or prose)
+4. Apply guidelines to all task creation decisions
+
+### Common Guideline Patterns
+
+**Testing Requirements:**
+- "Include unit tests in each task" - Add tests to the same task that creates the code
+- "Separate testing tasks" - Create dedicated test-writing tasks
+
+**Dependency Management:**
+- "Add dependencies where needed" - Include package additions in implementation tasks
+- "Dedicated setup tasks" - Create separate tasks for adding new dependencies
+
+**Task Size:**
+- "Vertical slices" - Each task covers frontend through backend for one feature
+- "Horizontal layers" - Tasks organized by architectural layer
+
+**Code Organization:**
+- "Feature-first" - Group tasks by user-facing feature
+- "Component-first" - Group tasks by technical component
+
+### Applying Guidelines
+
+When guidelines are present:
+1. Prioritize user guidelines over defaults
+2. Note in implementation.md which guidelines influenced the plan
+3. Reference guidelines in task descriptions when relevant
 
 ---
 

@@ -77,11 +77,38 @@ The agent will create:
 
 ### 6. Report Results
 
-When the agent completes, report:
+When the agent completes:
+
+1. **Read the implementation plan** to extract any concerns or alternatives documented during Critical Review:
+```
+Read: .prd-to-feature/{feature-name}/implementation.md
+```
+
+2. **Report to user**:
 - Path to the created Implementation Plan
 - Path to the created Task Tracker
 - Summary of phases and tasks
+- **Implementation Concerns** (if any were noted in the Architecture Changes section)
+- **Alternative Approaches Considered** (if documented)
 - Next steps: Run `/prd-to-feature:develop` to start implementation
+
+**Important**: If the planner documented concerns about the approach (complexity, technical debt, performance risks, simpler alternatives), highlight these prominently so the user can address them before starting development.
+
+Example output with concerns:
+```
+Created implementation plan with 8 tasks across 2 phases.
+
+⚠️ Implementation Concerns:
+- The proposed caching approach may not scale beyond 10k concurrent users
+- Consider Redis instead of in-memory caching for production
+
+📁 Files created:
+- .prd-to-feature/user-auth/implementation.md
+- .prd-to-feature/user-auth/tracker.json
+
+Next: Run /prd-to-feature:develop to start implementation
+      Or run /prd-to-feature:refine to adjust the plan first
+```
 
 ## Example Usage
 

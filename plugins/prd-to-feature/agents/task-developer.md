@@ -73,15 +73,16 @@ Read the provided task information:
 
 ### Step 2: Update Status
 
-Update the task status to `in-progress` in the tracker:
+Update the task status to `in-progress` using `jq` for efficient partial updates:
 
-```json
-{
-  "status": "in-progress"
-}
+```bash
+# Update single task status (in-place)
+jq --arg id "<task-id>" '
+  .tasks |= map(if .id == $id then .status = "in-progress" else . end)
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
-Write the updated tracker immediately.
+This updates only the status field without needing to read and rewrite the entire JSON structure in your context.
 
 ### Step 3: Implement
 
@@ -99,12 +100,12 @@ Write the code to fulfill the requirements:
 
 ### Step 4: Testing Gate
 
-Update status to `testing`:
+Update status to `testing` using `jq`:
 
-```json
-{
-  "status": "testing"
-}
+```bash
+jq --arg id "<task-id>" '
+  .tasks |= map(if .id == $id then .status = "testing" else . end)
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
 Run ALL verification commands:
@@ -123,7 +124,12 @@ npm run build      # Must pass
 
 ### Step 5: Add Notes to Related Tasks
 
-Read the tracker and find pending tasks that would benefit from notes.
+Find pending tasks that would benefit from notes. First, query pending tasks:
+
+```bash
+# Get pending task IDs and titles
+jq '[.tasks[] | select(.status == "todo" or .status == "in-progress") | {id, title}]' <tracker-path>
+```
 
 Add notes when:
 - You created utilities/helpers others will use
@@ -131,23 +137,31 @@ Add notes when:
 - You made architectural decisions
 - You found better approaches
 
-Note format:
-```json
-{
-  "timestamp": "2025-01-15T12:00:00Z",
-  "content": "The auth client is at lib/auth/client.ts. Import: import { authClient } from '@/lib/auth/client'",
-  "addedBy": "task-001"
-}
+Use `jq` to add notes to specific tasks:
+
+```bash
+# Add note to a target task
+jq --arg id "<target-task-id>" \
+   --arg content "The auth client is at lib/auth/client.ts. Import: import { authClient } from '@/lib/auth/client'" \
+   --arg addedBy "<current-task-id>" \
+   --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+  .tasks |= map(
+    if .id == $id then
+      .notes += [{timestamp: $timestamp, content: $content, addedBy: $addedBy}]
+    else .
+    end
+  )
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
 ### Step 6: Commit Changes
 
-1. Update task in tracker:
-```json
-{
-  "status": "done",
-  "filesModified": ["path/to/file1.ts", "path/to/file2.ts"]
-}
+1. Update task to done with files modified using `jq`:
+```bash
+jq --arg id "<task-id>" \
+   --argjson files '["path/to/file1.ts", "path/to/file2.ts"]' '
+  .tasks |= map(if .id == $id then .status = "done" | .filesModified = $files else . end)
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
 2. Stage files:
@@ -166,10 +180,11 @@ git commit -m "feat: implement user login form with validation"
 - Follow project conventions (conventional commits if configured)
 
 4. Update tracker with commit hash:
-```json
-{
-  "commitHash": "abc123def"
-}
+```bash
+HASH=$(git rev-parse --short HEAD)
+jq --arg id "<task-id>" --arg hash "$HASH" '
+  .tasks |= map(if .id == $id then .commitHash = $hash else . end)
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
 
 ## Handling Blockers

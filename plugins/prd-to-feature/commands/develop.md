@@ -43,31 +43,64 @@ Read: .claude/prd-to-feature.local.md
 
 Repeat until no tasks remain or user stops:
 
-#### a. Re-read Tracker
+#### a. Query Task Status
 
-**Important**: Always re-read the tracker at the start of each loop iteration:
-```
-Read: <tracker-path>
+**Important**: Use `jq` to efficiently query task statuses instead of reading the full tracker:
+
+```bash
+# Get minimal task data: id, status, dependsOn
+jq '[.tasks[] | {id, status, dependsOn}]' <tracker-path>
 ```
 
-The task-developer agent updates the tracker after completing each task. Re-reading ensures you see the latest task statuses and can correctly identify which dependencies are now satisfied.
+This reduces token usage from ~2000 tokens (full read) to ~200 tokens (status query).
+
+The task-developer agent updates the tracker after completing each task. Re-querying ensures you see the latest task statuses and can correctly identify which dependencies are now satisfied.
 
 #### b. Pick Next Task
 
-Priority order:
-1. Tasks with status `in-progress` (resume)
-2. Tasks with status `testing` (complete verification)
-3. Tasks with status `todo` where all `dependsOn` tasks are `done`
+Use `jq` to find the next task based on priority:
 
-If no tasks available:
+```bash
+# Find next task: in-progress > testing > available todo
+jq -r '
+  .tasks as $all |
+  (
+    # Priority 1: in-progress
+    ($all[] | select(.status == "in-progress") | .id) //
+    # Priority 2: testing
+    ($all[] | select(.status == "testing") | .id) //
+    # Priority 3: first available todo (dependencies met)
+    ($all[] |
+      select(.status == "todo") |
+      select(.dependsOn | length == 0 or all(. as $dep | $all[] | select(.id == $dep) | .status == "done")) |
+      .id
+    ) //
+    "none"
+  ) | if type == "array" then first else . end
+' <tracker-path>
+```
+
+If result is "none":
+```bash
+# Check for blocked tasks
+jq '[.tasks[] | select(.status == "blocked")] | length' <tracker-path>
+# Check for done count
+jq '[.tasks[] | select(.status == "done")] | length' <tracker-path>
+```
 - If blocked tasks exist: Report blockers and exit
 - If all done: Report completion and exit
 
 #### c. Extract Task Context
 
-For the selected task, extract:
-- Task details (requirements, acceptance criteria, notes)
-- Relevant section from Implementation document
+Once you have the task ID, extract only that task's details:
+
+```bash
+# Get full details for specific task
+jq --arg id "<task-id>" '.tasks[] | select(.id == $id)' <tracker-path>
+```
+
+Also extract:
+- Relevant section from Implementation document (use Read tool)
 - Project settings (if available)
 
 #### d. Launch Task Developer Agent

@@ -88,6 +88,34 @@ Shows:
 - Available tasks ready to start
 - Blocked tasks and their dependencies
 
+### `/prd-to-feature:refine <instructions>`
+
+Modify the implementation plan and task tracker after planning.
+
+```bash
+# Combine tasks
+/prd-to-feature:refine combine tasks 2 and 3 into a single task
+
+# Split a task
+/prd-to-feature:refine split task 5 into "Create API" and "Add tests"
+
+# Update architecture
+/prd-to-feature:refine use Redis instead of in-memory caching
+
+# Add phase
+/prd-to-feature:refine add a new phase for performance optimization
+
+# Add/remove tasks
+/prd-to-feature:refine add a task for API rate limiting after task 3
+/prd-to-feature:refine remove task 7
+```
+
+Supports:
+- **Task operations**: combine, split, add, remove, reorder, update tasks
+- **Dependency operations**: add or remove task dependencies
+- **Phase operations**: add phases, move tasks between phases
+- **Architecture changes**: update tech decisions in implementation.md
+
 ## Generated File Location
 
 Feature workflow stores generated files in `.prd-to-feature/` at your project root:
@@ -196,6 +224,64 @@ The prd-planner can add `skillHints` to tasks during planning:
 ```
 
 This helps task-developer prioritize which skills to load.
+
+## Task Guidelines
+
+Customize how the planner creates tasks by adding a "Task Guidelines" section to your settings file. This is useful for:
+- Ensuring tasks match your team's development style
+- Controlling task granularity
+- Bundling related work (tests, dependencies) into single tasks
+
+### Configuring Guidelines
+
+Add to `.claude/prd-to-feature.local.md`:
+
+```markdown
+## Task Guidelines
+
+- Tasks should include unit tests for the code being added
+- Dependencies should be added in the tasks that require them, not as separate tasks
+- Prefer larger tasks that complete a full vertical slice over small atomic changes
+- Create database migrations in separate, early tasks
+- Each task should update relevant documentation
+```
+
+### Example Guidelines
+
+**For monorepo projects:**
+```markdown
+## Task Guidelines
+
+- Each task should be scoped to a single package
+- Shared utilities go in @repo/shared package
+- Create package.json updates as separate prerequisite tasks
+```
+
+**For TDD workflows:**
+```markdown
+## Task Guidelines
+
+- Write failing tests first, then implementation in same task
+- Each task must have at least one acceptance test
+- Integration tests can be grouped in final phase
+```
+
+**For vertical slice architecture:**
+```markdown
+## Task Guidelines
+
+- Each task implements complete user flow (UI, API, DB)
+- Avoid tasks that only touch one layer
+- Cross-cutting concerns (auth, logging) are separate foundational tasks
+```
+
+### How Guidelines Are Applied
+
+The planner agent:
+1. Reads all guidelines before creating tasks
+2. Applies guidelines when structuring tasks and dependencies
+3. Notes in the implementation plan which guidelines influenced decisions
+4. Falls back to defaults only when no guideline applies
 
 ### Default Settings
 
@@ -316,6 +402,7 @@ Check progress at any time to see:
 | `plan` command | Entry point for planning |
 | `develop` command | Entry point for development |
 | `status` command | Progress monitoring |
+| `refine` command | Post-planning modifications |
 | `prd-planning` skill | Planning knowledge |
 | `task-development` skill | Development workflow knowledge |
 
