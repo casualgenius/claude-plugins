@@ -53,10 +53,10 @@ Gather all needed clarifications now - the agent will work with these answers.
 
 ### 5. Launch PRD Planner Agent
 
-Use the Task tool to launch the prd-planner agent with complete context:
+Use the Task tool to launch the prd-to-feature:prd-planner agent with complete context:
 
 ```
-Task: prd-planner agent
+Task: prd-to-feature:prd-planner agent
 Prompt must include:
   - PRD path and full contents
   - Project settings (if found)

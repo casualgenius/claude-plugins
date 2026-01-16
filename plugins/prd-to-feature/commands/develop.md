@@ -72,10 +72,10 @@ For the selected task, extract:
 
 #### d. Launch Task Developer Agent
 
-Use the Task tool with subagent_type to spawn task-developer:
+Use the Task tool with subagent_type to spawn prd-to-feature:task-developer:
 
 ```
-Task: task-developer agent (model: opus)
+Task: prd-to-feature:task-developer agent (model: opus)
 Prompt:
   - Task ID and details
   - Implementation context
