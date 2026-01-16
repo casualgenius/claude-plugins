@@ -1,7 +1,7 @@
 ---
 name: prd-planner
 description: "PRD analysis and planning agent. Use when creating technical implementation plans from PRD documents. Receives PRD content, user clarifications, and codebase context - then creates implementation plans with task trackers."
-model: sonnet
+model: inherit
 color: cyan
 tools:
   - Read

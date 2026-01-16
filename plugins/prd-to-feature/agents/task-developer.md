@@ -1,7 +1,7 @@
 ---
 name: task-developer
 description: "Task implementation agent. Use when implementing individual tasks from a feature workflow task tracker. Handles the full cycle: reading task context, implementing code, running tests, adding notes to related tasks, and committing changes. Each invocation handles one task with fresh context."
-model: opus
+model: inherit
 color: green
 tools:
   - Read

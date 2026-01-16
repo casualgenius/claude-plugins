@@ -75,7 +75,7 @@ For the selected task, extract:
 Use the Task tool with subagent_type to spawn prd-to-feature:task-developer:
 
 ```
-Task: prd-to-feature:task-developer agent (model: opus)
+Task: prd-to-feature:task-developer agent
 Prompt:
   - Task ID and details
   - Implementation context

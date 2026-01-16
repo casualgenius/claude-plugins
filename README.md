@@ -26,7 +26,7 @@ Then install individual plugins:
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
-| [prd-to-feature](plugins/prd-to-feature/README.md) | PRD-driven development workflow with automated planning and task execution | 1.1.0 |
+| [prd-to-feature](plugins/prd-to-feature/README.md) | PRD-driven development workflow with automated planning and task execution | 1.3.0 |
 
 ## Contributing
 

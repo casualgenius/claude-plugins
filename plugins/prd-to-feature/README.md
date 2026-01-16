@@ -9,6 +9,7 @@ A Claude Code plugin for PRD-driven feature development. Takes a Product Require
 - **Context Isolation**: Each task runs in a fresh agent context (no context compaction issues)
 - **Automatic Testing**: Runs typecheck, lint, tests, and build before each commit
 - **Progress Tracking**: Monitor feature completion with the status command
+- **Model Inheritance**: Agents use your session's model (Sonnet, Opus, or Haiku)
 
 ## Installation
 
@@ -325,6 +326,10 @@ Each task runs in a fresh agent instance to solve context compaction issues. Whe
 - Each task gets the full context window
 - Instructions are embedded in the agent's system prompt
 - No context loss during long development sessions
+
+### Model Selection
+
+Both agents inherit the model from your Claude Code session. If you're using Opus, the agents use Opus. If you switch to Sonnet or Haiku, the agents follow. This gives you control over the cost/capability tradeoff without editing plugin configuration.
 
 ## Troubleshooting
 
