@@ -101,7 +101,7 @@ Create the implementation plan markdown file with this structure:
 
 ### Phase 1 Tasks
 
-#### Task 1.1: {Task Title}
+#### task-001: {Task Title}
 
 **Requirements:**
 - Requirement 1
@@ -118,7 +118,15 @@ Create the implementation plan markdown file with this structure:
 
 ---
 
+#### task-002: {Next Task Title}
+
 [Repeat for each task]
+
+### Phase 2 Tasks
+
+#### task-003: {Task Title}
+
+[Continue with phase 2 tasks - task IDs are sequential across all phases]
 
 ## Testing Strategy
 

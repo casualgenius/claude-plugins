@@ -112,11 +112,9 @@ jq --arg id "<task-id>" '.tasks[] | select(.id == $id)' <tracker-path>
 **Extract only the relevant task section** from the Implementation document (do NOT read the full file):
 
 ```bash
-# Get the task title
-TASK_TITLE=$(jq -r --arg id "<task-id>" '.tasks[] | select(.id == $id) | .title' <tracker-path>)
-
-# Find the line number where this task's section starts
-START_LINE=$(grep -n "#### Task.*${TASK_TITLE}" <implementation-doc-path> | head -1 | cut -d: -f1)
+# Find the line number where this task's section starts using the task ID (e.g., task-001)
+# The implementation doc uses format: #### task-001: {Title}
+START_LINE=$(grep -n "^#### <task-id>:" <implementation-doc-path> | head -1 | cut -d: -f1)
 
 # Find the next section boundary (next #### or ### heading)
 END_LINE=$(tail -n +$((START_LINE + 1)) <implementation-doc-path> | grep -n "^###" | head -1 | cut -d: -f1)

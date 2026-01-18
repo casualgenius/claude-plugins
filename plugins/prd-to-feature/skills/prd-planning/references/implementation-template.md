@@ -86,7 +86,7 @@
 
 ### Phase 1: Foundation
 
-#### Task 1.1: {Task Title}
+#### task-001: {Task Title}
 
 **Requirements:**
 - {Specific requirement 1}
@@ -111,7 +111,7 @@ Example code pattern:
 
 ---
 
-#### Task 1.2: {Task Title}
+#### task-002: {Task Title}
 
 {Repeat structure for each task...}
 
@@ -119,7 +119,7 @@ Example code pattern:
 
 ### Phase 2: Core Implementation
 
-#### Task 2.1: {Task Title}
+#### task-003: {Task Title}
 
 {Continue with phase 2 tasks...}
 

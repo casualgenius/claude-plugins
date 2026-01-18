@@ -117,7 +117,7 @@ Structure:
 
 ## Tasks
 ### Phase 1 Tasks
-#### Task 1.1: {Title}
+#### task-001: {Title}
 **Requirements:**
 **Acceptance Criteria:**
 **Implementation Notes:**
@@ -178,6 +178,12 @@ Use `dependsOn` to specify which tasks must complete first:
 
 ### Task IDs
 Use format `task-001`, `task-002`, etc. (zero-padded 3 digits)
+
+**CRITICAL**: Task IDs MUST be identical between the implementation.md headings and the tracker.json:
+- Implementation doc: `#### task-001: Create user model`
+- Tracker JSON: `"id": "task-001", "title": "Create user model"`
+
+Task IDs are sequential across all phases (task-001, task-002, task-003... not resetting per phase).
 
 ### Phase IDs
 Use format `phase-1`, `phase-2`, etc.
