@@ -143,6 +143,51 @@ After commit, update the tracker with the actual commit hash.
 
 ---
 
+## Iterative Refinement (Ralph Loop Support)
+
+When running in ralph loop mode (`/develop-ralph`), tasks may be invoked multiple times until stable. This section covers how to handle iterative development.
+
+### Checking for Partial Work
+
+Before implementing, always check if previous iterations made progress:
+
+1. **Check git status**:
+```bash
+git status --short        # Uncommitted changes
+git log --oneline -3      # Recent commits
+git diff HEAD~1 --stat    # Last commit changes
+```
+
+2. **Assess current state**:
+   - Files already created? Check if they meet requirements
+   - Implementation looks done? Verify against acceptance criteria
+   - Tests already passing? Confirm all checks still pass
+
+3. **Decide next action**:
+   - **Nothing done** → Full implementation
+   - **Partial work** → Continue from current state
+   - **Looks complete** → Verify and run checks
+   - **Already passing** → Report "no changes needed"
+
+### Determining True Completion
+
+A task is truly complete when:
+- All requirements from the implementation doc are met
+- All acceptance criteria pass
+- All project verification checks pass
+- No edge cases or error scenarios are unhandled
+
+**Don't declare complete prematurely** - verify thoroughly before reporting "no changes needed".
+
+### Efficient Iteration
+
+- Don't redo correct work from previous iterations
+- Focus on what's missing or broken
+- If checks are passing and requirements are met, the task is stable
+- Report "Changes made: No" when nothing needed - this signals the loop to exit
+
+---
+
 ## Handling Blocked Tasks
 
 If you cannot complete a task:

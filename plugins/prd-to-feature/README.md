@@ -74,6 +74,49 @@ The development loop:
 
 Press `Ctrl+C` to stop development at any time.
 
+### `/prd-to-feature:develop-ralph [iterations] [tracker-path]`
+
+Ralph loop variant of develop - iterates on each task until stable for higher quality output.
+
+```bash
+# Default 3 iterations, auto-discover tracker
+/prd-to-feature:develop-ralph
+
+# 5 iterations max
+/prd-to-feature:develop-ralph 5
+
+# With explicit tracker path
+/prd-to-feature:develop-ralph 5 .prd-to-feature/my-feature/tracker.json
+```
+
+The ralph loop adds iteration around each task:
+1. Records current git HEAD
+2. Spawns fresh agent to implement/review the task
+3. Compares git HEAD after agent completes
+4. If commits were made → iterate again with fresh agent
+5. If no commits → task is stable, move to next task
+6. Stops at max iterations if task never stabilizes
+
+This "eventual consistency through iteration" approach:
+- Catches edge cases missed in first pass
+- Ensures thorough verification
+- Produces higher quality implementations
+- Costs more (multiple agent invocations per task)
+
+**When to use:**
+- Complex features with many edge cases
+- Critical code paths requiring extra verification
+- When you want maximum quality over speed
+
+**Standard develop vs develop-ralph:**
+
+| Aspect | `/develop` | `/develop-ralph` |
+|--------|-----------|------------------|
+| Iterations per task | 1 | Up to N (default 3) |
+| Exit condition | Agent returns | No changes detected |
+| Cost | Lower | Higher |
+| Quality | Good | Higher |
+
 ### `/prd-to-feature:status [tracker-path]`
 
 Check progress on a feature.
@@ -395,6 +438,7 @@ Check progress at any time to see:
 | `task-developer` agent | Implements individual tasks |
 | `plan` command | Entry point for planning |
 | `develop` command | Entry point for development |
+| `develop-ralph` command | Iterative development with ralph loop |
 | `status` command | Progress monitoring |
 | `refine` command | Post-planning modifications |
 | `prd-planning` skill | Planning knowledge |

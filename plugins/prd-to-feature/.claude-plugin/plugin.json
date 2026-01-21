@@ -1,6 +1,6 @@
 {
   "name": "prd-to-feature",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "PRD-driven development workflow with automated planning and task execution",
   "author": {
     "name": "Alex Stansfield",

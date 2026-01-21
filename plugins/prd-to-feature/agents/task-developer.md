@@ -70,6 +70,35 @@ Read the provided task information:
 - Notes: Information from previous tasks
 - Implementation section: Detailed guidance
 
+### Step 1.5: Check for Partial Work
+
+Previous iterations (in ralph loop mode) or interrupted sessions may have started this task. Before implementing, check existing state:
+
+1. **Check git status**:
+```bash
+git status --short
+```
+Look for uncommitted changes related to this task.
+
+2. **Review recent changes**:
+```bash
+git diff HEAD~1 --stat  # See what changed in last commit
+git log --oneline -3    # Check recent commits
+```
+
+3. **Assess current state vs requirements**:
+   - If files mentioned in requirements already exist with correct implementation → verify they work
+   - If partial implementation exists → identify what's missing and continue from there
+   - If implementation looks complete → run verification checks to confirm
+
+4. **Continue appropriately**:
+   - **Nothing done**: Proceed with full implementation
+   - **Partial work**: Build on existing changes, don't redo correct work
+   - **Looks complete**: Verify all acceptance criteria are met, run checks
+   - **Already passing**: Report "no changes needed" and skip to completion
+
+This check ensures efficient iteration without duplicating effort.
+
 ### Step 2: Update Status
 
 Update the task status to `in-progress` using `jq` for efficient partial updates:
@@ -146,6 +175,20 @@ jq --arg id "<target-task-id>" \
 
 ### Step 6: Commit Changes
 
+**First, check if there are any changes to commit:**
+
+```bash
+# Check for uncommitted changes
+git status --porcelain
+```
+
+**If no changes exist** (empty output), the task was already complete from a previous iteration:
+- Update task status to `done` (if not already)
+- Report "No changes needed - task already complete"
+- Skip the commit steps below
+
+**If changes exist**, proceed with commit:
+
 1. Update task to done with files modified using `jq`:
 ```bash
 jq --arg id "<task-id>" \
@@ -166,9 +209,14 @@ done
 
 **Note**: Do NOT stage tracker.json or any files in `.prd-to-feature/` - these are typically gitignored project state files. Only commit the actual code changes.
 
-3. Commit with clear message:
+3. Verify there are staged changes before committing:
 ```bash
-git commit -m "feat: implement user login form with validation"
+# Only commit if there are staged changes
+if ! git diff --cached --quiet; then
+  git commit -m "feat: implement user login form with validation"
+else
+  echo "No staged changes to commit"
+fi
 ```
 
 **Commit message rules**:
@@ -176,7 +224,7 @@ git commit -m "feat: implement user login form with validation"
 - Do NOT mention Claude or AI
 - Follow project conventions (conventional commits if configured)
 
-4. Update tracker with commit hash:
+4. Update tracker with commit hash (only if commit was made):
 ```bash
 HASH=$(git rev-parse --short HEAD)
 jq --arg id "<task-id>" --arg hash "$HASH" '
@@ -208,10 +256,13 @@ Do NOT commit partial work.
 
 When finished, report:
 - Task status (complete or blocked)
-- Files modified
-- Commit hash (if completed)
+- **Changes made**: Yes/No (important for ralph loop - if no changes, loop can exit)
+- Files modified (if any)
+- Commit hash (if committed)
 - Any issues encountered
 - Notes added to other tasks
+
+**For ralph loop compatibility**: The "Changes made: No" report signals to the develop-ralph command that the task has stabilized and no further iterations are needed.
 
 <example>
 Task: task-003 - Create login form component
@@ -241,4 +292,20 @@ Agent process:
 4. Adds note: "BLOCKED: Payment API endpoint not available. Task-005 must complete first."
 5. Does NOT commit
 6. Reports: "Task task-007 blocked. Dependency on payment API from task-005 not met. Added note to tracker."
+</example>
+
+<example>
+Ralph loop - no changes needed (task already complete):
+
+Agent process:
+1. Updates tracker: status → "in-progress"
+2. Checks for partial work:
+   - git status shows no uncommitted changes
+   - git log shows previous commit for this task
+   - Files mentioned in requirements exist and look correct
+3. Reviews implementation against acceptance criteria - all met
+4. Runs project verification checks - all pass
+5. No changes needed, skips commit
+6. Updates tracker: status → "done" (confirms completion)
+7. Reports: "Task task-003 completed. Changes made: No. Task was already fully implemented in previous iteration."
 </example>
