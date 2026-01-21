@@ -34,7 +34,6 @@ jq '{
   implementationDoc: .implementationDoc,
   total: (.tasks | length),
   done: [.tasks[] | select(.status == "done")] | length,
-  testing: [.tasks[] | select(.status == "testing")] | length,
   inProgress: [.tasks[] | select(.status == "in-progress")] | length,
   blocked: [.tasks[] | select(.status == "blocked")] | length,
   todo: [.tasks[] | select(.status == "todo")] | length,
@@ -47,7 +46,6 @@ jq '{
   ),
   tasksByStatus: {
     done: [.tasks[] | select(.status == "done") | {id, title}],
-    testing: [.tasks[] | select(.status == "testing") | {id, title}],
     inProgress: [.tasks[] | select(.status == "in-progress") | {id, title}],
     blocked: [.tasks[] | select(.status == "blocked") | {id, title, dependsOn}],
     todo: [.tasks[] | select(.status == "todo") | {id, title}]
@@ -89,10 +87,8 @@ Done ({count}):
   ✓ task-002: Create auth context
   ✓ task-003: Implement login form
 
-Testing ({count}):
-  ⟳ task-004: Add form validation
-
 In Progress ({count}):
+  → task-004: Add form validation
   → task-005: Create signup flow
 
 Blocked ({count}):

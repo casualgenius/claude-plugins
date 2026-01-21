@@ -97,15 +97,7 @@ Write the code to fulfill the requirements:
 - React components → Create Storybook story
 - Logic code → Create unit test
 
-### Step 4: Testing Gate
-
-Update status to `testing` using `jq`:
-
-```bash
-jq --arg id "<task-id>" '
-  .tasks |= map(if .id == $id then .status = "testing" else . end)
-' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
-```
+### Step 4: Verify Changes
 
 Run ALL verification commands:
 
@@ -240,13 +232,12 @@ Agent process:
 2. Creates components/auth/LoginForm.tsx
 3. Creates components/auth/LoginForm.stories.tsx (if Storybook required)
 4. Creates tests/components/LoginForm.test.tsx (if unit tests required)
-5. Updates tracker: status → "testing"
-6. Runs: npm run typecheck ✓, npm run lint ✓, npm run test:run ✓, npm run build ✓
-7. Adds note to task-004: "LoginForm exports useLoginForm hook for reuse"
-8. Updates tracker: status → "done", filesModified: [...]
-9. Commits: "feat: add login form with email/password validation"
-10. Updates tracker: commitHash: "abc123"
-11. Reports: "Task task-003 completed. Commit: abc123. Added note to task-004."
+5. Runs: npm run typecheck ✓, npm run lint ✓, npm run test:run ✓, npm run build ✓
+6. Adds note to task-004: "LoginForm exports useLoginForm hook for reuse"
+7. Updates tracker: status → "done", filesModified: [...]
+8. Commits: "feat: add login form with email/password validation"
+9. Updates tracker: commitHash: "abc123"
+10. Reports: "Task task-003 completed. Commit: abc123. Added note to task-004."
 </example>
 
 <example>

@@ -84,7 +84,7 @@ Check progress on a feature.
 
 Shows:
 - Overall completion percentage
-- Tasks by status (done, testing, in-progress, blocked, todo)
+- Tasks by status (done, in-progress, blocked, todo)
 - Available tasks ready to start
 - Blocked tasks and their dependencies
 
@@ -387,7 +387,6 @@ Check progress at any time to see:
 
 - `todo` - Not started
 - `in-progress` - Currently being worked on
-- `testing` - Implementation done, running checks
 - `blocked` - Cannot proceed (dependency or issue)
 - `done` - Completed and committed
 

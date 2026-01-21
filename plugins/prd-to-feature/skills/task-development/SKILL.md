@@ -16,8 +16,7 @@ Follow this precise workflow for each task:
 Select the next task using this priority order:
 
 1. **In-progress tasks**: Resume tasks already started
-2. **Testing tasks**: Complete tasks awaiting verification
-3. **Todo tasks**: Start new tasks, respecting dependencies
+2. **Todo tasks**: Start new tasks, respecting dependencies
 
 **Dependency Check**: A task is available only if ALL tasks in its `dependsOn` array have status `done`.
 
@@ -28,11 +27,7 @@ function pickNextTask(tasks) {
   const inProgress = tasks.find(t => t.status === 'in-progress');
   if (inProgress) return inProgress;
 
-  // Priority 2: Testing tasks
-  const testing = tasks.find(t => t.status === 'testing');
-  if (testing) return testing;
-
-  // Priority 3: Available todo tasks
+  // Priority 2: Available todo tasks
   const available = tasks.filter(t =>
     t.status === 'todo' &&
     t.dependsOn.every(depId =>
@@ -76,15 +71,7 @@ Follow these guidelines:
 - React components: Create Storybook stories if required
 - Logic code: Create unit tests if required
 
-### 5. Testing Gate
-
-Update status to `testing`:
-
-```json
-{
-  "status": "testing"
-}
-```
+### 5. Verify Changes
 
 Run ALL verification checks. These must ALL pass:
 

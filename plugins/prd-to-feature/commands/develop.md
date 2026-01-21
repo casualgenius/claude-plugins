@@ -71,15 +71,13 @@ The task-developer agent updates the tracker after completing each task. Re-quer
 Use `jq` to find the next task based on priority:
 
 ```bash
-# Find next task: in-progress > testing > available todo
+# Find next task: in-progress > available todo
 jq -r '
   .tasks as $all |
   (
     # Priority 1: in-progress
     ($all[] | select(.status == "in-progress") | .id) //
-    # Priority 2: testing
-    ($all[] | select(.status == "testing") | .id) //
-    # Priority 3: first available todo (dependencies met)
+    # Priority 2: first available todo (dependencies met)
     ($all[] |
       select(.status == "todo") |
       select(.dependsOn | length == 0 or all(. as $dep | $all[] | select(.id == $dep) | .status == "done")) |
@@ -198,8 +196,7 @@ Available tasks = tasks where:
 
 Next task = first of:
   1. Any task with status 'in-progress'
-  2. Any task with status 'testing'
-  3. First available 'todo' task
+  2. First available 'todo' task
 ```
 
 ## Tips

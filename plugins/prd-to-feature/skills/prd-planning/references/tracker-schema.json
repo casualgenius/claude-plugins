@@ -84,7 +84,7 @@
           },
           "status": {
             "type": "string",
-            "enum": ["todo", "in-progress", "testing", "blocked", "done"],
+            "enum": ["todo", "in-progress", "blocked", "done"],
             "description": "Current status of the task"
           },
           "dependsOn": {

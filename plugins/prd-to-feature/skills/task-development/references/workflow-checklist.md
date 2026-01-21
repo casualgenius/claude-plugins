@@ -29,10 +29,8 @@ Use this checklist for each task in the feature workflow.
 
 ---
 
-## Testing
+## Verification
 
-- [ ] Update task status to `testing`
-- [ ] Save the updated tracker file
 - [ ] Run typecheck: `npm run typecheck`
 - [ ] Run lint: `npm run lint`
 - [ ] Run tests: `npm run test:run`
@@ -66,7 +64,7 @@ Use this checklist for each task in the feature workflow.
 ### Task Status Flow
 
 ```
-todo → in-progress → testing → done
+todo → in-progress → done
                  ↓
               blocked (if cannot proceed)
 ```
@@ -74,8 +72,7 @@ todo → in-progress → testing → done
 ### Priority Order
 
 1. In-progress tasks (resume)
-2. Testing tasks (complete verification)
-3. Todo tasks (start new, check dependencies)
+2. Todo tasks (start new, check dependencies)
 
 ### Commit Message Examples
 
