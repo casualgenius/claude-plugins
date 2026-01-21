@@ -73,17 +73,15 @@ Follow these guidelines:
 
 ### 5. Verify Changes
 
-Run ALL verification checks. These must ALL pass:
+Run the project's verification checks. Determine what to run by checking:
 
-```bash
-# Default commands (adjust based on project)
-npm run typecheck  # TypeScript type checking
-npm run lint       # ESLint/linting
-npm run test:run   # Unit tests (non-watch mode)
-npm run build      # Production build
-```
+1. **Settings file**: `.claude/prd-to-feature.local.md` may list specific commands
+2. **CLAUDE.md**: Project instructions often specify verification steps
+3. **Project discovery**: Inspect `package.json`, `Makefile`, or similar for available scripts
 
-**If tests fail**:
+Common checks include type checking, linting, tests, and builds - but run whatever the project requires.
+
+**All checks must pass.** If any fail:
 1. Fix the issues
 2. Re-run all checks
 3. Do NOT proceed until everything passes
@@ -176,36 +174,14 @@ If you cannot complete a task:
 
 ## Project Settings
 
-Check for project-specific settings at `.claude/prd-to-feature.local.md`:
+Check for project-specific settings at `.claude/prd-to-feature.local.md`. This file can specify:
 
-```markdown
-# Feature Workflow Settings
+- **Verification commands**: What checks to run before committing
+- **Database migrations**: Which tool to use for schema changes
+- **Testing requirements**: Whether to create stories, unit tests, etc.
+- **Git conventions**: Branch prefixes, commit styles
 
-## Database Migrations
-- Tool: supabase
-- Command: `npx supabase db push`
-
-## Testing Requirements
-- Components: Create Storybook stories
-- Logic: Create unit tests with Vitest
-
-## Commands
-- Typecheck: `npm run typecheck`
-- Lint: `npm run lint`
-- Test: `npm run test:run`
-- Build: `npm run build`
-
-## Git
-- Branch prefix: feat/
-- Commit style: conventional
-```
-
-If no settings file exists, use these defaults:
-- Typecheck: `npm run typecheck` (if script exists in package.json)
-- Lint: `npm run lint` (if script exists)
-- Test: `npm run test` (if script exists)
-- Build: `npm run build` (if script exists)
-- No special requirements for components or migrations
+If no settings file exists, check `CLAUDE.md` for project instructions or discover verification commands from the project's build configuration (`package.json`, `Makefile`, etc.).
 
 ---
 
@@ -216,10 +192,7 @@ Before marking a task as `done`, verify:
 - [ ] All task requirements are implemented
 - [ ] All acceptance criteria are met
 - [ ] Code follows project conventions
-- [ ] Typecheck passes
-- [ ] Lint passes
-- [ ] Tests pass
-- [ ] Build succeeds
+- [ ] All project verification checks pass
 - [ ] Notes added to related tasks (if applicable)
 - [ ] Changes committed with tracker update
 
@@ -227,22 +200,14 @@ Before marking a task as `done`, verify:
 
 ## Error Recovery
 
-### Test Failures
-1. Read the error message carefully
-2. Fix the issue in your code
-3. Re-run all tests
-4. Do not skip or ignore failures
+When verification checks fail:
 
-### Build Failures
-1. Check for TypeScript errors
-2. Check for missing imports
-3. Check for circular dependencies
-4. Fix and rebuild
+1. **Read the error message carefully** - understand what failed and why
+2. **Fix the issue in your code** - don't skip or ignore failures
+3. **Re-run all checks** - ensure the fix didn't break something else
+4. **Repeat until all checks pass** - do NOT proceed with partial failures
 
-### Lint Failures
-1. Most can be auto-fixed: `npm run lint -- --fix`
-2. Manual fixes for remaining issues
-3. Re-run lint to verify
+For auto-fixable issues (like lint errors), check if the project has an auto-fix command available.
 
 ---
 

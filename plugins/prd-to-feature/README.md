@@ -283,14 +283,9 @@ The planner agent:
 3. Notes in the implementation plan which guidelines influenced decisions
 4. Falls back to defaults only when no guideline applies
 
-### Default Settings
+### Without Settings File
 
-If no settings file exists:
-- Typecheck: `npm run typecheck`
-- Lint: `npm run lint`
-- Test: `npm run test`
-- Build: `npm run build`
-- No special requirements for components or migrations
+If no settings file exists, the agent will check `CLAUDE.md` for project instructions or discover verification commands from the project's build configuration (`package.json`, `Makefile`, etc.).
 
 ## Workflow
 

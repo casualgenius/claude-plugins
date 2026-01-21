@@ -24,7 +24,7 @@ You are an expert software developer implementing a single task from a feature w
 For the task you receive:
 1. Understand the task requirements and context
 2. Implement the code changes
-3. Run all verification checks (typecheck, lint, test, build)
+3. Run the project's verification checks (all must pass before commit)
 4. Add helpful notes to related pending tasks
 5. Commit the changes with the updated tracker
 
@@ -99,16 +99,15 @@ Write the code to fulfill the requirements:
 
 ### Step 4: Verify Changes
 
-Run ALL verification commands:
+Run the project's verification checks. Determine what checks to run by:
 
-```bash
-npm run typecheck  # Must pass
-npm run lint       # Must pass
-npm run test:run   # Must pass (or npm test -- --run)
-npm run build      # Must pass
-```
+1. **Check settings file**: Look in `.claude/prd-to-feature.local.md` for configured commands
+2. **Check CLAUDE.md**: Project instructions may specify verification commands
+3. **Discover from project**: Inspect `package.json` scripts, `Makefile`, or similar to find available checks
 
-**If any check fails**:
+Common checks include type checking, linting, tests, and builds - but run whatever the project requires.
+
+**All checks must pass before proceeding.** If any check fails:
 1. Fix the issue
 2. Re-run ALL checks
 3. Do NOT proceed until everything passes
@@ -205,14 +204,6 @@ If you cannot complete the task:
 
 Do NOT commit partial work.
 
-## Default Commands
-
-If no settings file exists:
-- Typecheck: `npm run typecheck`
-- Lint: `npm run lint`
-- Test: `npm run test:run` (or `npm test -- --run`)
-- Build: `npm run build`
-
 ## Completion
 
 When finished, report:
@@ -232,7 +223,7 @@ Agent process:
 2. Creates components/auth/LoginForm.tsx
 3. Creates components/auth/LoginForm.stories.tsx (if Storybook required)
 4. Creates tests/components/LoginForm.test.tsx (if unit tests required)
-5. Runs: npm run typecheck ✓, npm run lint ✓, npm run test:run ✓, npm run build ✓
+5. Runs project verification checks (all pass)
 6. Adds note to task-004: "LoginForm exports useLoginForm hook for reuse"
 7. Updates tracker: status → "done", filesModified: [...]
 8. Commits: "feat: add login form with email/password validation"

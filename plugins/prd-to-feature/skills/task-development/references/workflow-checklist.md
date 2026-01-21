@@ -31,10 +31,8 @@ Use this checklist for each task in the feature workflow.
 
 ## Verification
 
-- [ ] Run typecheck: `npm run typecheck`
-- [ ] Run lint: `npm run lint`
-- [ ] Run tests: `npm run test:run`
-- [ ] Run build: `npm run build`
+- [ ] Determine project's verification commands (check settings file, CLAUDE.md, or package.json)
+- [ ] Run all required checks (type checking, linting, tests, build, etc.)
 - [ ] All checks pass (if not, fix and re-run)
 
 ---
@@ -115,8 +113,4 @@ Pick a different task or wait.
 
 Project settings: `.claude/prd-to-feature.local.md`
 
-If missing, defaults are used:
-- Typecheck: `npm run typecheck`
-- Lint: `npm run lint`
-- Test: `npm run test`
-- Build: `npm run build`
+If missing, check `CLAUDE.md` for project instructions or discover verification commands from the project's build configuration.
