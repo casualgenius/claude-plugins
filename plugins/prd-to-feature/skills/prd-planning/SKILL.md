@@ -160,22 +160,17 @@ Create the task tracker JSON file with this schema:
       "id": "task-001",
       "title": "Task title",
       "phase": "phase-1",
-      "requirements": [
-        "Requirement 1",
-        "Requirement 2"
-      ],
-      "acceptanceCriteria": [
-        "Criterion 1",
-        "Criterion 2"
-      ],
       "status": "todo",
       "dependsOn": [],
       "notes": [],
-      "complexity": "medium"
+      "complexity": "medium",
+      "skillHints": ["Backend"]
     }
   ]
 }
 ```
+
+**Note**: Task requirements and acceptance criteria are stored only in `implementation.md`, not in the tracker. The tracker manages execution state (status, dependencies, notes, completion metadata).
 
 ### Task Status Values
 

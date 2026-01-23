@@ -13,7 +13,7 @@
       "name": "prd-to-feature",
       "source": "./plugins/prd-to-feature",
       "description": "PRD-driven development workflow with automated planning and task execution",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "author": {
         "name": "Alex Stansfield",
         "email": "alex@casualgenius.com"

@@ -65,12 +65,10 @@ For each change type:
 
 **Combining Tasks:**
 1. Identify the tasks to combine (by ID number, e.g., "task 2" = "task-002")
-2. Merge requirements and acceptance criteria
-3. Combine implementation notes
-4. Use lower task ID, update title to reflect combined scope
-5. Remove higher task IDs
-6. Update all `dependsOn` references throughout the tracker
-7. Update implementation.md task section
+2. Use lower task ID, update title to reflect combined scope
+3. Remove higher task IDs from tracker
+4. Update all `dependsOn` references throughout the tracker
+5. Merge requirements, acceptance criteria, and implementation notes in implementation.md
 
 **Splitting Tasks:**
 1. Identify the task to split

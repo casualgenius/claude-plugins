@@ -107,7 +107,22 @@ Once you have the task ID, extract only that task's details:
 jq --arg id "<task-id>" '.tasks[] | select(.id == $id)' <tracker-path>
 ```
 
-**Extract only the relevant task section** from the Implementation document (do NOT read the full file):
+**Extract the Architecture section** from the Implementation document (provides context for all tasks):
+
+```bash
+# Find the Tech Stack and Architecture section
+ARCH_START=$(grep -n "^## Tech Stack and Architecture" <implementation-doc-path> | head -1 | cut -d: -f1)
+ARCH_END=$(tail -n +$((ARCH_START + 1)) <implementation-doc-path> | grep -n "^## " | head -1 | cut -d: -f1)
+if [ -n "$ARCH_END" ]; then
+  ARCH_END=$((ARCH_START + ARCH_END - 1))
+else
+  ARCH_END=$((ARCH_START + 50))
+fi
+```
+
+Then use the **Read tool with offset and limit** to extract the Architecture section.
+
+**Extract the specific task section** from the Implementation document:
 
 ```bash
 # Find the line number where this task's section starts using the task ID (e.g., task-001)
@@ -139,8 +154,9 @@ Use the Task tool with subagent_type to spawn prd-to-feature:task-developer:
 ```
 Task: prd-to-feature:task-developer agent
 Prompt:
-  - Task ID and details
-  - Implementation context
+  - Task ID and details (from tracker)
+  - Architecture section (tech stack, integration points, data flow)
+  - Task section (requirements, acceptance criteria, implementation notes)
   - Tracker path (for updates)
   - Project settings
 ```

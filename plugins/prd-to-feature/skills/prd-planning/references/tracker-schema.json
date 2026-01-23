@@ -51,7 +51,7 @@
       "description": "List of implementation tasks",
       "items": {
         "type": "object",
-        "required": ["id", "title", "phase", "requirements", "acceptanceCriteria", "status"],
+        "required": ["id", "title", "phase", "status"],
         "properties": {
           "id": {
             "type": "string",
@@ -65,22 +65,6 @@
           "phase": {
             "type": "string",
             "description": "Phase ID this task belongs to"
-          },
-          "requirements": {
-            "type": "array",
-            "description": "List of specific requirements for the task",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 1
-          },
-          "acceptanceCriteria": {
-            "type": "array",
-            "description": "Testable criteria that define task completion",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 1
           },
           "status": {
             "type": "string",
@@ -168,34 +152,17 @@
           "id": "task-001",
           "title": "Set up authentication provider",
           "phase": "phase-1",
-          "requirements": [
-            "Configure Supabase auth client",
-            "Set up environment variables"
-          ],
-          "acceptanceCriteria": [
-            "Auth client initializes without errors",
-            "Environment variables documented"
-          ],
           "status": "done",
           "dependsOn": [],
           "notes": [],
           "complexity": "low",
+          "filesModified": ["lib/auth/client.ts", ".env.example"],
           "commitHash": "abc123"
         },
         {
           "id": "task-002",
           "title": "Create login form component",
           "phase": "phase-2",
-          "requirements": [
-            "Create LoginForm component",
-            "Add email and password validation",
-            "Handle authentication errors"
-          ],
-          "acceptanceCriteria": [
-            "Form validates input before submission",
-            "Error messages display correctly",
-            "Successful login redirects to dashboard"
-          ],
           "status": "in-progress",
           "dependsOn": ["task-001"],
           "notes": [

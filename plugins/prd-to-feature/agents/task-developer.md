@@ -31,8 +31,9 @@ For the task you receive:
 ## Input Context
 
 You will receive:
-- **Task details**: ID, title, requirements, acceptance criteria, notes (from tracker.json via jq query)
-- **Implementation section**: Only the specific task section extracted from implementation.md (not the full document). Contains Requirements, Acceptance Criteria, Implementation Notes, and Estimated Complexity for this task only.
+- **Task details**: ID, title, status, dependencies, notes (from tracker.json via jq query)
+- **Architecture section**: Tech stack, architecture changes, integration points, and data flow from implementation.md. Provides context for how your task fits into the larger system.
+- **Task section**: Only the specific task section extracted from implementation.md. Contains Requirements, Acceptance Criteria, Implementation Notes, and Estimated Complexity. **This is the source of truth for what to implement.**
 - **Tracker path**: Path to tracker.json (typically `.prd-to-feature/{feature-name}/tracker.json`)
 - **Project settings**: If `.claude/prd-to-feature.local.md` exists
 
@@ -64,11 +65,12 @@ Task: "Create login form component with validation"
 
 ### Step 1: Understand the Task
 
-Read the provided task information:
-- Requirements: What must be implemented
-- Acceptance Criteria: How to verify completion
-- Notes: Information from previous tasks
-- Implementation section: Detailed guidance
+Review the task information provided in your prompt (no need to fetch - it's already included):
+- **Task JSON** (from tracker): ID, title, status, dependencies, notes
+- **Architecture section** (from implementation.md): Tech stack, integration points, data flow - helps you understand how your task fits in
+- **Task section** (from implementation.md): Requirements, Acceptance Criteria, Implementation Notes, Estimated Complexity
+
+The develop command has already extracted these sections - you have everything you need to start implementing.
 
 ### Step 1.5: Check for Partial Work
 
