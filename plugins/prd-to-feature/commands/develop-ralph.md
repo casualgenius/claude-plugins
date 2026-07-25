@@ -10,24 +10,33 @@ Execute the development workflow with Ralph loop support. Each task is iterated 
 
 ## Arguments
 
-- `[iterations]` (optional): Maximum iterations per task, default 3
+- `[max-iterations]` (optional): Maximum iterations per task, default 3
+- `[min-iterations]` (optional): Minimum iterations before allowing early exit, default 2
 - `[tracker-path]` (optional): Path to the tracker.json file
   - If not provided, searches for trackers in `.prd-to-feature/`
 
-**Argument parsing**: If only one argument is provided:
-- If it's a number → iterations count
-- If it's a path → tracker path
+**Argument parsing**:
+- Numbers are parsed in order: first number → max iterations, second number → min iterations
+- Paths are detected by containing `/` or ending in `.json`
+- Min iterations cannot exceed max iterations (auto-capped)
 
 ## How Ralph Loop Works
 
 For each task, instead of a single agent invocation:
 
 1. Record current git HEAD
-2. Spawn task-developer agent
+2. Spawn task-developer agent with ralph context (iteration number, min/max)
 3. After agent completes, compare git HEAD
 4. If HEAD changed (commits made) → iterate again with fresh agent
-5. If HEAD unchanged (no changes) → task is stable, move on
-6. If max iterations reached → log warning, move on
+5. If HEAD unchanged but below MIN_ITERATIONS → force another iteration
+6. If HEAD unchanged AND min iterations met → task is stable, mark done
+7. If max iterations reached → mark done and move on
+
+Key differences from standard develop:
+- **Minimum iterations (default 2)**: Ensures at least one review pass even if first looks complete
+- **Task completion controlled by loop**: Agent keeps status as "in-progress", loop marks "done" when stable
+- **Commits tracked as array**: Each iteration's commit is recorded with iteration number
+- **Session recovery**: Current iteration is persisted in tracker, so interrupted sessions resume from where they left off
 
 This "eventual consistency through iteration" approach catches edge cases, improves code quality, and ensures thorough implementation.
 
@@ -40,16 +49,28 @@ Determine iterations and tracker path from arguments:
 ```bash
 # Default values
 MAX_ITERATIONS=3
+MIN_ITERATIONS=2
 TRACKER_PATH=""
+NUM_COUNT=0
 
 # Parse arguments
 for arg in "$@"; do
   if [[ "$arg" =~ ^[0-9]+$ ]]; then
-    MAX_ITERATIONS="$arg"
+    if [ "$NUM_COUNT" -eq 0 ]; then
+      MAX_ITERATIONS="$arg"
+    else
+      MIN_ITERATIONS="$arg"
+    fi
+    NUM_COUNT=$((NUM_COUNT + 1))
   else
     TRACKER_PATH="$arg"
   fi
 done
+
+# Ensure min doesn't exceed max
+if [ "$MIN_ITERATIONS" -gt "$MAX_ITERATIONS" ]; then
+  MIN_ITERATIONS="$MAX_ITERATIONS"
+fi
 ```
 
 ### 2. Find Tracker
@@ -177,13 +198,17 @@ Then use the **Read tool with offset and limit** parameters:
 **This is the key difference from standard develop command.**
 
 ```
-ITERATION=1
+# Check if resuming from a previous session (currentIteration persisted in tracker)
+SAVED_ITERATION=$(jq -r --arg id "<task-id>" '.tasks[] | select(.id == $id) | .currentIteration // 1' <tracker-path>)
+ITERATION=$SAVED_ITERATION
 BEFORE_HEAD=$(git rev-parse HEAD)
 
-RALPH_LOOP:
-  Report: "Task <task-id> - Iteration {ITERATION}/{MAX_ITERATIONS}"
+Report: "Starting task <task-id> at iteration {ITERATION}"
 
-  # Launch task-developer agent
+RALPH_LOOP:
+  Report: "Task <task-id> - Iteration {ITERATION}/{MAX_ITERATIONS} (min: {MIN_ITERATIONS})"
+
+  # Launch task-developer agent with ralph context
   Task: prd-to-feature:task-developer agent
   Prompt:
     - Task ID and details (from tracker)
@@ -191,6 +216,11 @@ RALPH_LOOP:
     - Task section (requirements, acceptance criteria, implementation notes)
     - Tracker path (for updates)
     - Project settings
+    - **Ralph mode context:**
+      - RALPH_MODE: true
+      - ITERATION: {current iteration number}
+      - MIN_ITERATIONS: {MIN_ITERATIONS value}
+      - MAX_ITERATIONS: {MAX_ITERATIONS value}
 
   # Check if changes were made
   AFTER_HEAD=$(git rev-parse HEAD)
@@ -203,13 +233,36 @@ RALPH_LOOP:
 
     IF ITERATION > MAX_ITERATIONS:
       Report: "Max iterations ({MAX_ITERATIONS}) reached for task <task-id>"
+      # Mark task as done and clear currentIteration
+      jq --arg id "<task-id>" '
+        .tasks |= map(if .id == $id then .status = "done" | del(.currentIteration) else . end)
+      ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
       BREAK
     ELSE:
+      # Persist iteration for session recovery
+      jq --arg id "<task-id>" --argjson iter "$ITERATION" '
+        .tasks |= map(if .id == $id then .currentIteration = $iter else . end)
+      ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
       CONTINUE RALPH_LOOP
   ELSE:
-    # No changes - task is stable
-    Report: "Task <task-id> stable after {ITERATION} iteration(s)"
-    BREAK
+    # No changes made this iteration
+    IF ITERATION < MIN_ITERATIONS:
+      # Haven't met minimum iterations yet - force another pass
+      Report: "Iteration {ITERATION}: No changes, but minimum iterations ({MIN_ITERATIONS}) not reached. Continuing..."
+      ITERATION++
+      # Persist iteration for session recovery
+      jq --arg id "<task-id>" --argjson iter "$ITERATION" '
+        .tasks |= map(if .id == $id then .currentIteration = $iter else . end)
+      ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
+      CONTINUE RALPH_LOOP
+    ELSE:
+      # Met minimum iterations AND no changes = task is stable
+      Report: "Task <task-id> stable after {ITERATION} iteration(s)"
+      # Mark task as done and clear currentIteration
+      jq --arg id "<task-id>" '
+        .tasks |= map(if .id == $id then .status = "done" | del(.currentIteration) else . end)
+      ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
+      BREAK
 ```
 
 #### e. Handle Result
@@ -239,17 +292,20 @@ When loop ends, report:
 ## Example Usage
 
 ```bash
-# Default 3 iterations, auto-discover tracker
+# Default: 3 max, 2 min iterations, auto-discover tracker
 /prd-to-feature:develop-ralph
 
-# 5 iterations max, auto-discover tracker
+# 5 max iterations (2 min default), auto-discover tracker
 /prd-to-feature:develop-ralph 5
+
+# 5 max iterations, 3 min iterations
+/prd-to-feature:develop-ralph 5 3
 
 # Default iterations, explicit path
 /prd-to-feature:develop-ralph .prd-to-feature/user-auth/tracker.json
 
-# 5 iterations with explicit path
-/prd-to-feature:develop-ralph 5 .prd-to-feature/user-auth/tracker.json
+# 5 max, 3 min iterations with explicit path
+/prd-to-feature:develop-ralph 5 3 .prd-to-feature/user-auth/tracker.json
 ```
 
 ## Stopping Development
@@ -270,19 +326,23 @@ Next task = first of:
 
 ## Tips
 
-- Start with default 3 iterations - increase if tasks are complex
+- Default is 3 max, 2 min iterations - increase max for complex tasks
+- The minimum of 2 iterations ensures thorough review even when first pass looks complete
 - Each iteration gets fresh agent context (no context compaction issues)
-- Most tasks stabilize in 1-2 iterations; the loop catches edge cases
+- Task is only marked "done" after meeting min iterations AND no changes detected
+- **Session recovery**: If compacted/interrupted, re-running resumes from the saved iteration
 - Blocked tasks are skipped and can be retried later
 - Use `/prd-to-feature:status` to check progress
-- All commits include the updated tracker file
+- Commits are tracked in an array, allowing review of work across iterations
 
 ## Comparison with Standard Develop
 
 | Aspect | `/develop` | `/develop-ralph` |
 |--------|-----------|------------------|
-| Iterations per task | 1 | Up to N (default 3) |
-| Exit condition | Agent returns | No changes detected |
+| Iterations per task | 1 | Min 2, up to N (default 3) |
+| Exit condition | Agent returns | No changes after min iterations |
+| Task completion | Agent marks done | Loop marks done after stable |
+| Commit tracking | Single hash | Array of {hash, iteration, timestamp} |
 | Cost | Lower | Higher (more invocations) |
-| Quality | Good | Higher (refinement passes) |
+| Quality | Good | Higher (iterative refinement) |
 | Use case | Quick iteration | Thorough implementation |

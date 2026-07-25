@@ -37,6 +37,16 @@ You will receive:
 - **Tracker path**: Path to tracker.json (typically `.prd-to-feature/{feature-name}/tracker.json`)
 - **Project settings**: If `.claude/prd-to-feature.local.md` exists
 
+## Ralph Mode Context (Optional)
+
+When invoked from `/develop-ralph`, you will also receive:
+- **RALPH_MODE**: `true` - indicates iterative development mode
+- **ITERATION**: Current iteration number (1-indexed)
+- **MIN_ITERATIONS**: Minimum iterations required before declaring stable
+- **MAX_ITERATIONS**: Maximum iterations allowed
+
+When NOT in ralph mode (standard `/develop`), these fields are absent or RALPH_MODE is `false`.
+
 ## Loading Project Skills
 
 After reading the settings file, check for an "Available Skills" section.
@@ -88,18 +98,45 @@ git diff HEAD~1 --stat  # See what changed in last commit
 git log --oneline -3    # Check recent commits
 ```
 
-3. **Assess current state vs requirements**:
-   - If files mentioned in requirements already exist with correct implementation → verify they work
-   - If partial implementation exists → identify what's missing and continue from there
-   - If implementation looks complete → run verification checks to confirm
+3. **Review previous commits for this task** (in ralph mode):
 
-4. **Continue appropriately**:
-   - **Nothing done**: Proceed with full implementation
-   - **Partial work**: Build on existing changes, don't redo correct work
-   - **Looks complete**: Verify all acceptance criteria are met, run checks
-   - **Already passing**: Report "no changes needed" and skip to completion
+If the tracker shows commits from previous iterations, review what was done:
+```bash
+# Get commits array for this task
+jq --arg id "<task-id>" '.tasks[] | select(.id == $id) | .commits // []' <tracker-path>
+```
 
-This check ensures efficient iteration without duplicating effort.
+For each commit hash, review the changes:
+```bash
+git show <hash> --stat    # See what files changed
+git show <hash>           # See the actual diff
+```
+
+4. **Continue appropriately based on mode**:
+
+**Standard mode (RALPH_MODE is false or absent)**:
+- **Nothing done**: Proceed with full implementation
+- **Partial work**: Build on existing changes, don't redo correct work
+- **Looks complete**: Verify all acceptance criteria are met, run checks
+- **Already passing**: Report "no changes needed" and skip to completion
+
+**Ralph mode (RALPH_MODE is true)**:
+- **ALWAYS perform thorough review** regardless of prior work
+- **Iteration 1**: Implement or complete the task fully
+- **Iteration 2+**: Review previous work critically:
+  - Are there edge cases not handled?
+  - Is error handling complete?
+  - Are tests comprehensive?
+  - Is the code clean and following best practices?
+  - Any opportunities for improvement?
+- **Only report "no changes needed"** if after thorough review, ALL of:
+  - All requirements are met
+  - All acceptance criteria pass
+  - All verification checks pass
+  - No improvements identified
+  - You've genuinely examined the code (not just assumed it's done)
+
+**Critical for ralph mode**: Do NOT assume work is complete just because a commit exists. The purpose of ralph mode is iterative refinement - actively look for improvements even on "complete" work.
 
 ### Step 2: Update Status
 
@@ -184,14 +221,24 @@ jq --arg id "<target-task-id>" \
 git status --porcelain
 ```
 
-**If no changes exist** (empty output), the task was already complete from a previous iteration:
-- Update task status to `done` (if not already)
-- Report "No changes needed - task already complete"
+**If no changes exist** (empty output):
+- In **ralph mode**: Report "Changes made: No" - let the ralph loop decide next steps
+- In **standard mode**: Update task status to `done` if not already, report "No changes needed - task already complete"
 - Skip the commit steps below
 
 **If changes exist**, proceed with commit:
 
-1. Update task to done with files modified using `jq`:
+1. **Update task status** (mode-dependent):
+
+**Ralph mode**: Keep status as `in-progress` - the ralph loop will mark as `done` when all iterations complete:
+```bash
+jq --arg id "<task-id>" \
+   --argjson files '["path/to/file1.ts", "path/to/file2.ts"]' '
+  .tasks |= map(if .id == $id then .filesModified = $files else . end)
+' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
+```
+
+**Standard mode**: Mark as `done`:
 ```bash
 jq --arg id "<task-id>" \
    --argjson files '["path/to/file1.ts", "path/to/file2.ts"]' '
@@ -226,13 +273,30 @@ fi
 - Do NOT mention Claude or AI
 - Follow project conventions (conventional commits if configured)
 
-4. Update tracker with commit hash (only if commit was made):
+4. **Update tracker with commit info** (append to commits array):
+
 ```bash
 HASH=$(git rev-parse --short HEAD)
-jq --arg id "<task-id>" --arg hash "$HASH" '
-  .tasks |= map(if .id == $id then .commitHash = $hash else . end)
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+ITERATION=${ITERATION:-1}  # Default to 1 for non-ralph mode
+
+# Initialize commits array if it doesn't exist, then append
+jq --arg id "<task-id>" \
+   --arg hash "$HASH" \
+   --arg timestamp "$TIMESTAMP" \
+   --argjson iteration "$ITERATION" '
+  .tasks |= map(
+    if .id == $id then
+      # Initialize commits array if missing, migrate from commitHash if present
+      (if .commits then . else (if .commitHash then .commits = [{"hash": .commitHash, "iteration": 1}] | del(.commitHash) else .commits = [] end) end) |
+      # Append new commit
+      .commits += [{"hash": $hash, "iteration": $iteration, "timestamp": $timestamp}]
+    else . end
+  )
 ' <tracker-path> > <tracker-path>.tmp && mv <tracker-path>.tmp <tracker-path>
 ```
+
+This handles backward compatibility: if an old `commitHash` string exists, it's migrated to the `commits` array before appending the new commit.
 
 ## Handling Blockers
 
@@ -257,14 +321,17 @@ Do NOT commit partial work.
 ## Completion
 
 When finished, report:
-- Task status (complete or blocked)
-- **Changes made**: Yes/No (important for ralph loop - if no changes, loop can exit)
+- Task status:
+  - **Ralph mode**: "in-progress" (loop controls final status) or "blocked"
+  - **Standard mode**: "complete" or "blocked"
+- **Changes made**: Yes/No (CRITICAL for ralph loop - "No" signals potential stability)
 - Files modified (if any)
 - Commit hash (if committed)
+- Iteration number (if in ralph mode)
 - Any issues encountered
 - Notes added to other tasks
 
-**For ralph loop compatibility**: The "Changes made: No" report signals to the develop-ralph command that the task has stabilized and no further iterations are needed.
+**For ralph loop compatibility**: The "Changes made: No" report signals to the develop-ralph command that THIS iteration made no changes. Combined with meeting MIN_ITERATIONS, this indicates the task has stabilized. The ralph loop will mark the task as "done" once it confirms stability.
 
 <example>
 Task: task-003 - Create login form component
@@ -297,17 +364,40 @@ Agent process:
 </example>
 
 <example>
-Ralph loop - no changes needed (task already complete):
+Ralph loop iteration 2 - thorough review finds improvements:
 
-Agent process:
+Agent process (RALPH_MODE=true, ITERATION=2):
 1. Updates tracker: status → "in-progress"
 2. Checks for partial work:
-   - git status shows no uncommitted changes
-   - git log shows previous commit for this task
-   - Files mentioned in requirements exist and look correct
-3. Reviews implementation against acceptance criteria - all met
+   - Reviews commits array: sees commit from iteration 1
+   - Uses `git show <hash>` to review previous changes
+3. Performs thorough review against requirements:
+   - Implementation exists and mostly correct
+   - Finds: error handling missing for edge case
+   - Finds: test coverage could be improved
+4. Makes improvements to fix edge case and add tests
+5. Runs project verification checks - all pass
+6. Commits changes (status stays "in-progress" in ralph mode)
+7. Appends to commits array: {hash, iteration: 2, timestamp}
+8. Reports: "Task task-003 iteration 2. Changes made: Yes. Added edge case handling and improved test coverage."
+</example>
+
+<example>
+Ralph loop - no changes needed after thorough review:
+
+Agent process (RALPH_MODE=true, ITERATION=2):
+1. Updates tracker: status → "in-progress"
+2. Checks for partial work:
+   - Reviews commits array to see previous work
+   - Uses `git show <hash>` to examine changes
+3. Performs thorough review:
+   - All requirements fully implemented
+   - Edge cases handled
+   - Error handling complete
+   - Tests comprehensive
+   - Code clean and follows best practices
 4. Runs project verification checks - all pass
-5. No changes needed, skips commit
-6. Updates tracker: status → "done" (confirms completion)
-7. Reports: "Task task-003 completed. Changes made: No. Task was already fully implemented in previous iteration."
+5. No improvements needed, skips commit
+6. Reports: "Task task-003 iteration 2. Changes made: No. Thorough review complete - all requirements met, no improvements identified."
+   (Ralph loop will now mark task as "done" since MIN_ITERATIONS met and no changes)
 </example>

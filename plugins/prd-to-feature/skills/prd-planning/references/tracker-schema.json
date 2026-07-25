@@ -114,9 +114,34 @@
               "type": "string"
             }
           },
-          "commitHash": {
-            "type": "string",
-            "description": "Git commit hash when task was completed"
+          "currentIteration": {
+            "type": "integer",
+            "description": "Current ralph loop iteration (1-indexed). Used to resume after session interruption. Cleared when task is marked done.",
+            "minimum": 1
+          },
+          "commits": {
+            "type": "array",
+            "description": "Git commit history for this task across iterations",
+            "items": {
+              "type": "object",
+              "required": ["hash", "iteration"],
+              "properties": {
+                "hash": {
+                  "type": "string",
+                  "description": "Git commit hash (short form)"
+                },
+                "iteration": {
+                  "type": "integer",
+                  "description": "Ralph loop iteration number (1-indexed), or 1 for non-ralph develop"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 timestamp when commit was made"
+                }
+              }
+            },
+            "default": []
           },
           "skillHints": {
             "type": "array",
@@ -157,7 +182,9 @@
           "notes": [],
           "complexity": "low",
           "filesModified": ["lib/auth/client.ts", ".env.example"],
-          "commitHash": "abc123"
+          "commits": [
+            {"hash": "abc123", "iteration": 1, "timestamp": "2025-01-15T10:30:00Z"}
+          ]
         },
         {
           "id": "task-002",
