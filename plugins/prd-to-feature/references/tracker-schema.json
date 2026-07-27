@@ -145,7 +145,7 @@
           },
           "skillHints": {
             "type": "array",
-            "description": "Skill categories relevant to this task (e.g., Frontend, Backend, Database, Testing). Helps task-developer load appropriate skills.",
+            "description": "Exact names of skills the planner identified as relevant to this task, as they appear in the Skill tool (e.g. 'python-development:python-testing-patterns'). Advisory only: the developer agent sees the full skill list itself, may invoke skills not listed here, and ignores any hint that is no longer installed. Leave empty rather than guessing; never use invented category labels.",
             "items": {
               "type": "string"
             },
@@ -200,7 +200,7 @@
             }
           ],
           "complexity": "medium",
-          "skillHints": ["Frontend", "Testing"]
+          "skillHints": ["frontend-mobile-development:react-state-management"]
         }
       ]
     }

@@ -1,7 +1,9 @@
 ---
 description: Show the current progress of a feature workflow. Displays tasks by status and overall completion percentage.
-argument-hint: [tracker-path]
-allowed-tools: Read, Glob, Bash
+when_to_use: Use when the user asks how a prd-to-feature workflow is going - "what's the status", "how many tasks are left", "show me progress", "what's blocked".
+argument-hint: "[tracker-path]"
+effort: low
+allowed-tools: Read, Glob, Bash(${CLAUDE_PLUGIN_ROOT}/scripts/tracker.sh:*)
 ---
 
 # Status Command
@@ -24,51 +26,29 @@ Glob: .prd-to-feature/**/tracker.json
 
 If multiple trackers found, list them all with their progress.
 
-### 2. Calculate Statistics with jq
+### 2. Calculate Statistics
 
-Use `jq` to compute all statistics in a single efficient query:
-
-```bash
-jq '{
-  feature: .feature,
-  implementationDoc: .implementationDoc,
-  total: (.tasks | length),
-  done: [.tasks[] | select(.status == "done")] | length,
-  inProgress: [.tasks[] | select(.status == "in-progress")] | length,
-  blocked: [.tasks[] | select(.status == "blocked")] | length,
-  todo: [.tasks[] | select(.status == "todo")] | length,
-  available: (
-    .tasks as $all |
-    [.tasks[] |
-      select(.status == "todo") |
-      select(.dependsOn | length == 0 or all(. as $dep | $all[] | select(.id == $dep) | .status == "done"))
-    ] | length
-  ),
-  tasksByStatus: {
-    done: [.tasks[] | select(.status == "done") | {id, title}],
-    inProgress: [.tasks[] | select(.status == "in-progress") | {id, title}],
-    blocked: [.tasks[] | select(.status == "blocked") | {id, title, dependsOn}],
-    todo: [.tasks[] | select(.status == "todo") | {id, title}]
-  }
-}' <tracker-path>
-```
-
-This single query produces all needed statistics without multiple file reads.
-
-### 3. Get Blocker Details (if needed)
-
-For blocked tasks, get details on what they're waiting for:
+One call produces every count plus the actionable tasks:
 
 ```bash
-jq '
-  .tasks as $all |
-  [.tasks[] | select(.status == "blocked") | {
-    id,
-    title,
-    waitingFor: [.dependsOn[] as $dep | $all[] | select(.id == $dep and .status != "done") | {id, title, status}]
-  }]
-' <tracker-path>
+"${CLAUDE_PLUGIN_ROOT}/scripts/tracker.sh" summary <tracker-path>
 ```
+
+Returns `feature`, `implementationDoc`, `total`, `done`, `inProgress`, `blocked`, `todo`, `available` (todo tasks whose dependencies are all met), and `tasksByStatus`.
+
+`tasksByStatus` lists only the **non-done** tasks. Completed work is a count, because on a large feature the done list is dozens of titles nobody reads. Fetch it only if the user actually asks what has been finished:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/tracker.sh" list <tracker-path> done
+```
+
+### 3. Get Blocker Details (if any)
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/tracker.sh" blockers <tracker-path>
+```
+
+Returns each blocked task with its `dependsOn` list and its most recent note, which is where the developer agent recorded the reason.
 
 ### 4. Display Progress
 
@@ -82,21 +62,18 @@ Progress: {done}/{total} tasks ({percentage}%)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Done ({count}):
-  ✓ task-001: Set up authentication provider
-  ✓ task-002: Create auth context
-  ✓ task-003: Implement login form
+Done: 3 tasks
 
 In Progress ({count}):
-  → task-004: Add form validation
-  → task-005: Create signup flow
+  → task-004: Add form validation            [phase-2]
+  → task-005: Create signup flow             [phase-2] (ralph iteration 2)
 
 Blocked ({count}):
-  ✗ task-008: Payment integration (needs: task-007)
+  ✗ task-008: Payment integration            [phase-3]
 
 Todo ({count}):
-  ○ task-006: Add password reset
-  ○ task-007: Configure payment provider
+  ○ task-006: Add password reset             [phase-2]
+  ○ task-007: Configure payment provider     [phase-3]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -104,14 +81,20 @@ Available to start: 2 tasks (task-006, task-007)
 Blocked: 1 task
 ```
 
+List the done tasks individually only if the user asks. Show `currentIteration` when a task has one — it means a ralph loop was interrupted mid-task and will resume there.
+
 ### 5. Show Blockers (if any)
 
-Use the blocker details from Step 3 to show what blocked tasks are waiting for:
+Use the blocker details from Step 3. The `lastNote` is the reason the developer agent recorded when it gave up on the task.
 
 ```
 Blocked Tasks:
   task-008: Payment integration
-    Waiting for: task-007 (Configure payment provider) - status: todo
+    Reason: BLOCKED: Payment API endpoint not available. task-007 must complete first.
+    Depends on: task-007
+
+To retry, set it back to todo and re-run develop:
+  scripts/tracker.sh status <tracker> task-008 todo
 ```
 
 ## Example Usage

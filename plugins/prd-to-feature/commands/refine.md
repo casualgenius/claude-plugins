@@ -1,7 +1,8 @@
 ---
 description: Refine implementation plan and task tracker after planning. Supports combining/splitting tasks, updating architecture, adding phases, and other modifications.
-argument-hint: <refinement-instructions>
-allowed-tools: Read, Write, Edit, Glob, Bash
+when_to_use: Use after /prd-to-feature:plan when the user wants to adjust the generated plan before development starts - "combine tasks 2 and 3", "split that task", "change the auth approach", "add a phase for migration".
+argument-hint: "<refinement-instructions>"
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Refine Command
@@ -108,7 +109,7 @@ jq '.' <tracker-path> > /dev/null
 # Check for orphaned dependencies (tasks depending on non-existent tasks)
 jq '
   .tasks | map(.id) as $ids |
-  [.[] | {id, orphaned: [.dependsOn[] | select(. as $d | $ids | index($d) | not)]}] |
+  [.[] | {id, orphaned: [(.dependsOn // [])[] | select(. as $d | $ids | index($d) | not)]}] |
   map(select(.orphaned | length > 0))
 ' <tracker-path>
 ```

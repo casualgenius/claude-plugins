@@ -7,9 +7,9 @@ A Claude Code plugin for PRD-driven feature development. Takes a Product Require
 - **Automated Planning**: Analyzes PRDs and creates detailed technical implementation plans
 - **Task Tracking**: Generates JSON task trackers with dependencies and status
 - **Context Isolation**: Each task runs in a fresh agent context (no context compaction issues)
-- **Automatic Testing**: Runs typecheck, lint, tests, and build before each commit
+- **Verification Before Commit**: Discovers and runs the project's own checks; nothing commits until they pass
+- **Native Skill Discovery**: Agents find and invoke your installed skills automatically
 - **Progress Tracking**: Monitor feature completion with the status command
-- **Model Inheritance**: Agents use your session's model (Sonnet, Opus, or Haiku)
 
 ## Installation
 
@@ -74,46 +74,50 @@ The development loop:
 
 Press `Ctrl+C` to stop development at any time.
 
-### `/prd-to-feature:develop-ralph [iterations] [tracker-path]`
+### `/prd-to-feature:develop-ralph [max-iterations] [min-iterations] [tracker-path]`
 
-Ralph loop variant of develop - iterates on each task until stable for higher quality output.
+Ralph loop variant of develop. Each task gets repeated passes from fresh agents until the work stops being substantive.
 
 ```bash
-# Default 3 iterations, auto-discover tracker
+# Defaults: max 10, min 2, auto-discover tracker
 /prd-to-feature:develop-ralph
 
-# 5 iterations max
+# Cap at 5 iterations
 /prd-to-feature:develop-ralph 5
 
-# With explicit tracker path
-/prd-to-feature:develop-ralph 5 .prd-to-feature/my-feature/tracker.json
+# Max 5, min 3
+/prd-to-feature:develop-ralph 5 3
+
+# With an explicit tracker path
+/prd-to-feature:develop-ralph 5 3 .prd-to-feature/my-feature/tracker.json
 ```
 
-The ralph loop adds iteration around each task:
-1. Records current git HEAD
-2. Spawns fresh agent to implement/review the task
-3. Compares git HEAD after agent completes
-4. If commits were made → iterate again with fresh agent
-5. If no commits → task is stable, move to next task
-6. Stops at max iterations if task never stabilizes
+Each iteration, the agent reports a **change class**:
 
-This "eventual consistency through iteration" approach:
-- Catches edge cases missed in first pass
-- Ensures thorough verification
-- Produces higher quality implementations
-- Costs more (multiple agent invocations per task)
+- `substantive` - fixed a bug, implemented a missing requirement or acceptance criterion, added error handling, or added tests for one of those
+- `polish` - in scope but marginal
+- `none` - nothing to commit
 
-**When to use:**
-- Complex features with many edge cases
-- Critical code paths requiring extra verification
-- When you want maximum quality over speed
+The loop stops when two consecutive iterations are non-substantive (having met the minimum), when an iteration produces nothing at all, or at the ceiling. A commit smaller than about ten lines is counted as `polish` regardless of what the agent claimed, so the loop cannot be talked into continuing.
+
+From iteration 2 onward the agent works under a **scope fence**: only correctness, requirements, acceptance criteria, error handling, and test coverage justify a change. Anything else it notices gets recorded as a note on a related task instead of being implemented. Without that fence a capable model always finds one more thing to tidy and the loop never converges.
+
+Other behaviour worth knowing:
+
+- **Session recovery**: the current iteration is persisted in the tracker, so an interrupted run resumes where it left off.
+- **Commit history**: each iteration's commit is appended to the task's `commits` array with its iteration number, so you can review how the work evolved.
+- **Ceiling exits are flagged**: if a task stops because it hit the ceiling, its last iteration was never reviewed by a subsequent pass, and the report says so.
+
+**When to use:** complex features with many edge cases, critical code paths, or whenever you want maximum quality over speed. It costs several times more than `/develop`.
 
 **Standard develop vs develop-ralph:**
 
 | Aspect | `/develop` | `/develop-ralph` |
 |--------|-----------|------------------|
-| Iterations per task | 1 | Up to N (default 3) |
-| Exit condition | Agent returns | No changes detected |
+| Iterations per task | 1 | Min 2, ceiling 10 (default) |
+| Exit condition | Agent returns | Two consecutive non-substantive passes, or the ceiling |
+| Task completion | Agent marks done | Loop marks done once stable |
+| Commit tracking | One entry | One entry per iteration |
 | Cost | Lower | Higher |
 | Quality | Good | Higher |
 
@@ -212,61 +216,34 @@ Create `.claude/prd-to-feature.local.md` to configure project-specific settings:
 - Commit style: conventional
 ```
 
-## Skill Loading
+## Skills
 
-The plugin supports loading skills from other installed plugins on-demand.
+Agents discover skills natively. Both `prd-planner` and `task-developer` have the `Skill` tool, so they see every project, user, and plugin skill installed in your session, along with its description, and invoke the ones that match the work. There is nothing to configure.
 
-### Why Selective Loading?
-
-Spawned agents don't automatically have access to skills from other plugins. By configuring skill references in your settings file, agents can load relevant knowledge based on task context - keeping context focused and efficient.
-
-### Configuring Skills
-
-Add an "Available Skills" section to your `.claude/prd-to-feature.local.md`:
-
-```markdown
-## Available Skills
-
-### Frontend
-Use when task involves React, UI, or components:
-- React: ~/.claude/plugins/my-plugin/skills/react/SKILL.md
-- Storybook: ~/.claude/plugins/my-plugin/skills/storybook/SKILL.md
-
-### Backend
-Use when task involves API or server code:
-- API patterns: ~/.claude/plugins/my-plugin/skills/api/SKILL.md
-
-### Database
-Use when task involves database operations:
-- Supabase: ~/.claude/plugins/my-plugin/skills/supabase/SKILL.md
-
-### Testing
-Use when writing or modifying tests:
-- Vitest: ~/.claude/plugins/my-plugin/skills/vitest/SKILL.md
-```
-
-### How It Works
-
-1. Agent reads settings and discovers available skills
-2. Agent analyzes current task requirements
-3. Agent loads only skills matching the task context
-4. Agent applies patterns from loaded skills
-
-This keeps context focused - a database migration task won't load frontend skills.
-
-### Skill Hints
-
-The prd-planner can add `skillHints` to tasks during planning:
+The planner records the skill names it judged relevant in each task's `skillHints`:
 
 ```json
 {
   "id": "task-003",
   "title": "Create login form",
-  "skillHints": ["Frontend", "Testing"]
+  "skillHints": ["frontend-mobile-development:react-state-management"]
 }
 ```
 
-This helps task-developer prioritize which skills to load.
+These are advisory. The developer agent sees the full skill list itself, may invoke skills not listed, and ignores any hint that is no longer installed.
+
+### Reference Docs
+
+Skills cover reusable knowledge, but in-repo convention documents are not skills. Point agents at those with a `## Reference Docs` section in your settings file:
+
+```markdown
+## Reference Docs
+
+Read these when the task touches the relevant area:
+- React conventions: docs/patterns/react.md
+- API error envelope: docs/api/errors.md
+- Architecture decisions: docs/adr/
+```
 
 ## Task Guidelines
 
@@ -410,16 +387,17 @@ Check progress at any time to see:
       "id": "task-001",
       "title": "Configure auth provider",
       "phase": "phase-1",
-      "requirements": ["Set up Supabase auth"],
-      "acceptanceCriteria": ["Auth client initializes"],
       "status": "todo",
       "dependsOn": [],
       "notes": [],
-      "complexity": "low"
+      "complexity": "low",
+      "skillHints": []
     }
   ]
 }
 ```
+
+Requirements and acceptance criteria live in `implementation.md`, not the tracker. The tracker holds execution state only. The full schema is at `references/tracker-schema.json`.
 
 ### Task Statuses
 
@@ -441,8 +419,8 @@ Check progress at any time to see:
 | `develop-ralph` command | Iterative development with ralph loop |
 | `status` command | Progress monitoring |
 | `refine` command | Post-planning modifications |
-| `prd-planning` skill | Planning knowledge |
-| `task-development` skill | Development workflow knowledge |
+| `scripts/tracker.sh` | Tracker reads and per-task state writes, so the jq lives in one place rather than in prompts. `refine` edits the tracker directly, since restructuring tasks is beyond what the script models. |
+| `references/` | Plan template and tracker JSON schema, read on demand |
 
 ### Why Separate Agents?
 
@@ -454,19 +432,41 @@ Each task runs in a fresh agent instance to solve context compaction issues. Whe
 
 ### Model Selection
 
-Both agents inherit the model from your Claude Code session. If you're using Opus, the agents use Opus. If you switch to Sonnet or Haiku, the agents follow. This gives you control over the cost/capability tradeoff without editing plugin configuration.
+`prd-planner` inherits your session model - planning is the highest-leverage thinking in the workflow, so it runs on whatever you chose.
+
+`task-developer` is pinned to Sonnet. Implementation is the bulk of the token spend and Sonnet handles it well, so pinning keeps a long feature affordable without downgrading your session. To change it, edit `model:` in `agents/task-developer.md`.
+
+The orchestrating commands set no model of their own, so they stay on your session model and never leave it changed after they finish.
 
 ## Troubleshooting
 
 ### Tests failing
-The development agent will keep trying to fix test failures. If stuck, it will mark the task as blocked and move on.
+The development agent re-runs every check after each fix and will not commit until they all pass. If it cannot get there, it marks the task `blocked` and moves on.
 
 ### Task blocked
-Check the task's notes in the tracker for the blocker reason. Fix the dependency and re-run develop.
+Run `/prd-to-feature:status` to see the reason, which the agent recorded as a note. A blocked task is skipped by the develop loop and is not retried automatically. Once you have resolved the blocker, set it back to `todo` and re-run develop:
+
+```bash
+plugins/prd-to-feature/scripts/tracker.sh status <tracker-path> task-008 todo
+```
+
+### Ralph loop runs too many iterations
+Lower the ceiling: `/prd-to-feature:develop-ralph 4`. If tasks routinely reach the ceiling, the task is probably too large or its acceptance criteria too vague - `/prd-to-feature:refine` to split it.
 
 ### Cannot find tracker
 Trackers are stored in `.prd-to-feature/{feature-name}/tracker.json`. Use explicit path if auto-discovery fails:
 `/prd-to-feature:develop .prd-to-feature/my-feature/tracker.json`
+
+## Migrating from 1.x
+
+Version 2.0 is a breaking release. Existing trackers and implementation plans keep working; the changes are to configuration and behaviour.
+
+- **`## Available Skills` in `.claude/prd-to-feature.local.md` is deprecated.** Agents now discover skills through the Skill tool, so the list is no longer needed. Both agents still read a legacy section and treat its entries as Reference Docs, so nothing breaks if you leave it - but move anything genuinely useful to a `## Reference Docs` section and delete the rest. Everything else in the settings file is unchanged.
+- **`skillHints` now holds real skill names**, not invented categories like `"Frontend"`. Old values are ignored rather than mis-resolved. Re-run `/prd-to-feature:plan` if you want them repopulated.
+- **`task-developer` is pinned to Sonnet.** Previously both agents inherited your session model. Edit `model:` in `agents/task-developer.md` to change it.
+- **Ralph defaults changed** from a ceiling of 3 to 10, with a new diminishing-returns exit condition. In practice most tasks now stop sooner than before, not later, because the loop no longer needs to reach the ceiling to terminate.
+- **Blocked tasks now get `status: "blocked"`.** Previously the agent left them `in-progress`, which meant the develop loop re-picked the same blocked task indefinitely. They are now skipped, and you unblock them explicitly.
+- **The `skills/` directory is gone.** Its content moved into the agent definitions, and its reference files to `references/`.
 
 ## License
 

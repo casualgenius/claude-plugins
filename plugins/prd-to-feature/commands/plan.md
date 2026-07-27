@@ -1,7 +1,9 @@
 ---
 description: Plan a feature implementation from a PRD document. Analyzes the PRD and codebase, asks clarifying questions, then creates a Technical Implementation Plan and Task Tracker.
-argument-hint: <prd-path>
-allowed-tools: Read, Glob, Grep, Task, AskUserQuestion
+when_to_use: Use when the user has a PRD or feature spec and wants it turned into an implementation plan and task breakdown - "plan this PRD", "break this spec into tasks", "how should we build this feature".
+argument-hint: "<prd-path>"
+effort: high
+allowed-tools: Read, Glob, Grep, Agent, AskUserQuestion
 ---
 
 # Plan Command
@@ -53,16 +55,19 @@ Gather all needed clarifications now - the agent will work with these answers.
 
 ### 5. Launch PRD Planner Agent
 
-Use the Task tool to launch the prd-to-feature:prd-planner agent with complete context:
+Use the Agent tool to launch the `prd-to-feature:prd-planner` agent with complete context:
 
 ```
-Task: prd-to-feature:prd-planner agent
+Agent: prd-to-feature:prd-planner
 Prompt must include:
   - PRD path and full contents
   - Project settings (if found)
   - User's answers to clarifying questions
   - Codebase exploration findings
   - Output location: .prd-to-feature/{feature-name}/
+  - Reference files:
+      ${CLAUDE_PLUGIN_ROOT}/references/implementation-template.md
+      ${CLAUDE_PLUGIN_ROOT}/references/tracker-schema.json
 ```
 
 The agent will create:
