@@ -18,7 +18,10 @@ left, and how to prove it works. Agents come and go; the runbook stays.
 - **Records what actually shipped**: the dated landing note, the deviations from plan, and the
   negative results worth not rediscovering
 - **Cross-repo aware**: runbooks in different repos pair via a `counterpart:` link
-- **Repo-agnostic**: reads each repo's own verification gate and conventions from its `CLAUDE.md`
+- **Repo-agnostic**: no fixed folder — it resolves where the runbooks live from your
+  `CLAUDE.md`, and reads each repo's own verification gate and conventions from there too
+- **Status at a glance**: `/ai-migration:status` reports what is in flight, what is blocked and
+  what is ready to pick up, without re-running a single sweep
 
 ## Installation
 
@@ -42,25 +45,25 @@ Or with explicit marketplace (if you have multiple marketplaces):
 
 ## Per-repo setup
 
-The skill is repo-agnostic. Each repo tells it how to verify work by adding a section to its
-`CLAUDE.md` — without this the agent will not know the folder exists, and will not find or update
-a runbook unless told to by hand every time:
+The skill is repo-agnostic. Each repo tells it where its runbooks live and how to verify work,
+by adding a section to its `CLAUDE.md`:
 
 ```markdown
 ## AI Migration Runbooks
 
-Large refactors that span multiple sessions are tracked as runbooks in `tools/ai-migrations/`.
-`tools/ai-migrations/README.md` is the index — check it before proposing work that may already
+Large refactors that span multiple sessions are tracked as runbooks in `docs/ai-migrations/`.
+`docs/ai-migrations/README.md` is the index — check it before proposing work that may already
 be planned there.
 
-Use the `ai-migration` skill to create, resume, update or complete one. When a stage lands,
-update its runbook in the same change; do not edit a runbook's status or stage table by hand
-without it.
+Use the `ai-migration` skill to create, resume, update or complete one, and
+`/ai-migration:status` to see what is in flight. When a stage lands, update its runbook in the
+same change; do not edit a runbook's status or stage table by hand without it.
 
 Conventions this repo supplies to that skill:
 
 | Thing             | This repo                                        |
 | ----------------- | ------------------------------------------------ |
+| Runbook folder    | `docs/ai-migrations/`                            |
 | Project names     | `<command that lists projects>`                  |
 | Verification gate | `<what CI runs>`                                 |
 | Gate gap to close | `<the check CI skips, and the bar to hold to>`   |
@@ -68,6 +71,15 @@ Conventions this repo supplies to that skill:
 | Ticket prefix     | `<tracker prefix, if any>`                       |
 | Off-limits        | `<tool-generated subtrees to leave alone>`       |
 ```
+
+The `Runbook folder` row is the one that matters most. Without it the plugin falls back to
+probing for `docs/ai-migrations`, `tools/ai-migrations`, `.ai-migrations` and `ai-migrations`,
+in that order — which works, but means a repo with runbooks in two places can be read from the
+wrong one. Declaring it settles the question. `$AI_MIGRATION_DIR` overrides both.
+
+Everything else in the table is what the skill needs in order to verify work rather than assume
+it. Without the section at all, the agent will not know the folder exists and will not find or
+update a runbook unless told to by hand every time.
 
 ## Usage
 
@@ -77,10 +89,38 @@ The skill fires on its own from phrases like these, and is also invocable as `/a
 | ---------------------------------------------- | ---------------------------------------------------------------- |
 | "make an ai migration for this"                | Creates a runbook from the conversation, asking only what it must |
 | "carry on with the auth0 migration"            | Reads it, re-verifies its inventory, names the next stage         |
-| "what migrations are in flight"                | Reads the index                                                   |
+| `/ai-migration:status`                         | Read-only report: in flight, blocked, ready to pick up            |
+| `/ai-migration:status auth0`                   | Detail on one runbook: stages, blockers, what is next             |
 | _(a stage lands)_                              | Writes the dated note, deviations, stage row, progress, index     |
 | "that migration is done"                       | Outcome, archive to `done/`, fixes inbound links                  |
 | "audit the runbooks"                           | Validates the set; suggests folder merges for you to decide       |
+
+### Status
+
+`/ai-migration:status` reads what the runbooks claim and reports it. It never edits anything and
+never re-runs an inventory sweep — that is [Resume](#usage), and it is far too expensive for a
+glance. What it does instead is tell you how old each claim is:
+
+```
+Runbooks in docs/ai-migrations - 3 active, 2 completed
+
+In progress (1)
+  → Remove the home-grown authentication stack in favour of Auth0   [COD-1234]
+    auth/migrate_to_auth0.md · updated 1 day ago
+    5 of 8 stages landed (latest: stage 5, 2026-08-30, #4127).
+    Next: stage 6, ready and unblocked.
+
+Blocked (1)
+  ✗ Audit and prune unused dependencies
+    tech-debt/audit_deps.md · updated 183 days ago  ⚠ stale
+    Pass 2 stalled. Blocked on the platform team confirming the lockfile policy.
+
+Ready to pick up: auth/fix_signup_residue.md
+```
+
+Completed runbooks are a count, not a list. Anything untouched for 30+ days is flagged stale,
+because a runbook's numbers are a dated snapshot and a month-old `**Progress**` line is a claim
+about the past. Disagreements between a runbook and the index are reported, not silently fixed.
 
 ### Do you need plan mode?
 
@@ -90,9 +130,10 @@ result **back into the runbook** rather than keeping it as a throwaway execution
 
 ## Runbook layout
 
-Runbooks live in `tools/ai-migrations/`, in folders that name the thing being changed — a domain,
-an app, a subsystem — with a catch-all for cross-cutting cleanup and a `done/` archive. Each opens
-with YAML frontmatter and three lines a human reads first:
+Runbooks live in the folder your `CLAUDE.md` declares — `docs/ai-migrations/` by default — in
+subfolders that name the thing being changed: a domain, an app, a subsystem, with a `tech-debt/`
+catch-all for cross-cutting cleanup and a `done/` archive. Each opens with YAML frontmatter and
+three lines a human reads first:
 
 ```markdown
 ---
@@ -120,10 +161,12 @@ a folder called `done`.
 
 ## Structure
 
-| Path                       | Purpose                                               |
-| -------------------------- | ----------------------------------------------------- |
-| `skills/ai-migration/`     | The skill: five modes, the format rules, the hard rules |
-| `skills/ai-migration/references/` | The blank runbook template, copied on create   |
+| Path                              | Purpose                                                  |
+| --------------------------------- | -------------------------------------------------------- |
+| `skills/ai-migration/`            | The skill: five modes, the format rules, the hard rules   |
+| `skills/ai-migration/references/` | The blank runbook template, copied on create              |
+| `commands/status.md`              | `/ai-migration:status` — the read-only progress report    |
+| `scripts/runbooks.sh`             | Folder discovery and frontmatter parsing, in one place    |
 
 ## License
 

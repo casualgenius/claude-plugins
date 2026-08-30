@@ -1,21 +1,43 @@
 ---
 name: ai-migration
 description: >-
-  Create, resume, update or complete an AI-migration runbook in tools/ai-migrations/ — the
-  markdown files that track multi-session refactors and tech-debt work in this repo.
+  Create, resume, update or complete an AI-migration runbook — the markdown files in this
+  repo's runbook folder that track multi-session refactors and tech-debt work.
   Use when the user says "make an ai migration for this", "turn this into a runbook", "add this
-  to the runbook", "what migrations are in flight", "carry on with the auth0 migration", when a
-  stage of a tracked migration lands, or whenever reading or editing any file under
-  tools/ai-migrations/.
+  to the runbook", "carry on with the auth0 migration", "that migration is done", "audit the
+  runbooks", when a stage of a tracked migration lands, or whenever reading or editing any file
+  under the runbook folder. For a read-only report of what is in flight, prefer the
+  /ai-migration:status command.
 ---
 
 # AI migration runbooks
 
-A runbook is a markdown file in `tools/ai-migrations/` that carries a large refactor across many
-sessions and many PRs. It is the memory: what was decided and why, what was already tried and
-rejected, what is left, and how to prove it works. Agents come and go; the runbook stays.
+A runbook is a markdown file that carries a large refactor across many sessions and many PRs.
+It is the memory: what was decided and why, what was already tried and rejected, what is left,
+and how to prove it works. Agents come and go; the runbook stays.
 
-The index of every runbook is `tools/ai-migrations/README.md`.
+## Where the runbooks live
+
+**There is no fixed path.** Resolve the folder before doing anything else:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/runbooks.sh" resolve
+```
+
+It prints the folder relative to the repo root, checking in order:
+
+1. `$AI_MIGRATION_DIR`.
+2. The `Runbook folder` row in the repo's `CLAUDE.md`, under "AI Migration Runbooks". A repo
+   that declares where its runbooks live is never overruled by a folder that merely happens to
+   exist under one of the probed names.
+3. An existing `docs/ai-migrations`, `tools/ai-migrations`, `.ai-migrations` or `ai-migrations`.
+
+**Exit 1 means this repo has no runbook folder yet.** Only [Create](#create) may act on that,
+and only by asking — propose `docs/ai-migrations/`, and once the user has picked, have them add
+the `Runbook folder` row to their `CLAUDE.md` so every later session resolves it without
+probing. Never create the folder silently, and never assume a path you have not resolved.
+
+Below, `<runbooks>` means whatever that resolved to. The index is always `<runbooks>/README.md`.
 
 ## Hard rules
 
@@ -23,8 +45,8 @@ The index of every runbook is `tools/ai-migrations/README.md`.
   project-listing command and any off-limits subtrees under "AI Migration Runbooks" in its
   `CLAUDE.md`. Use those, not the examples in this skill.
 - **Never touch a tool-generated subtree** inside the runbook folder. Some tools write their own
-  upgrade notes there and pin the path in their config; in the NX monorepo that is
-  `tools/ai-migrations/@nx/`. Leave them alone and do not apply these conventions to them.
+  upgrade notes there and pin the path in their config; `<runbooks>/@nx/` in an NX monorepo is the
+  example. Leave them alone and do not apply these conventions to them.
 - **Never commit** unless explicitly asked. Write the files, report, stop.
 - **Never introduce a checkbox.** They were tried here and left 77 unticked in `done/`. Progress
   lives in the stage table and the `**Progress**` line, nowhere else.
@@ -43,7 +65,12 @@ The index of every runbook is `tools/ai-migrations/README.md`.
 | Picking up tracked work — "carry on with X"             | [Resume](#resume)     |
 | Reporting a landed stage, or you just landed one        | [Update](#update)     |
 | Finishing the last stage                                | [Complete](#complete) |
-| Asking what is in flight, or the folders look messy     | [Audit](#audit)       |
+| Asking what is in flight, or how work is going          | `/ai-migration:status` |
+| The folders look messy, or links may have rotted        | [Audit](#audit)       |
+
+`/ai-migration:status` is read-only and cheap: it reads what the runbooks claim and reports it.
+Audit is a validator that re-checks the set against the repo. Do not run an audit when someone
+only asked how things are going.
 
 ---
 
@@ -72,7 +99,9 @@ than re-interrogating the user.
 4. **Write the file** from `references/template.md` into the chosen folder, named `snake_case.md`,
    verb-first (`migrate_`, `fix_`, `audit_`, `consolidate_`, `dedupe_`, `add_`).
 5. **Add the README row.**
-6. Report the path. Do not commit.
+6. If the folder did not exist until now, tell the user to add the `Runbook folder` row to
+   their `CLAUDE.md` — without it the next session has to fall back to probing.
+7. Report the path. Do not commit.
 
 If the work is small enough to finish in the current session, say so and offer to just do it — a
 runbook for a 20-minute fix is overhead, not memory.
@@ -185,12 +214,16 @@ you verified and when.
 
 1. Every runbook has valid frontmatter with the required keys.
 2. Every `projects:` entry is a real project, per the repo's project-listing command.
-3. Every relative markdown link under `tools/ai-migrations/` resolves, including `counterpart:`
-   paths into sibling repos. Skip tool-generated subtrees.
+3. Every relative markdown link under `<runbooks>/` resolves, including `counterpart:` paths
+   into sibling repos. Skip tool-generated subtrees.
 4. Every runbook has exactly one README row, and the statuses agree.
 5. No `../../../` paths, no `## Testing` heading, no checkboxes, no "Phase"/"batch" used as a
    unit of work.
-6. **Folder health.** Suggest — never perform — a merge or split when a folder passes ~8 files,
+6. **The resolved folder is the declared one.** If `runbooks.sh resolve` fell through to probing,
+   the repo's `CLAUDE.md` has no `Runbook folder` row — say so, and offer to add it. If it
+   resolved from `CLAUDE.md` but a second candidate folder also exists, that is a split set of
+   runbooks and needs saying out loud.
+7. **Folder health.** Suggest — never perform — a merge or split when a folder passes ~8 files,
    or when two folders hold runbooks that keep touching the same projects. Present the case and
    let the user decide.
 
@@ -212,7 +245,7 @@ created: 2026-08-29
 updated: 2026-08-31
 projects: [connect-app-api, connect-next-api, util-auth] # this repo's own project names
 tracking: COD-1234 # omit if none
-counterpart: ../mobile-app/ypb-tech-whitelabel-app/tools/ai-migrations/migrate_app_to_auth0.md
+counterpart: ../ypb-tech-whitelabel-app/docs/ai-migrations/migrate_app_to_auth0.md
 ---
 
 # Remove the home-grown authentication stack in favour of Auth0

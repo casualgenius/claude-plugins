@@ -119,4 +119,5 @@ Update this file as the work happens, not afterwards — it is the handover to t
 Progress lives in the `**Progress**` line and the stage table; there are no checkboxes. Append
 corrections, never rewrite history.
 
-Use the `ai-migration` skill (`.claude/skills/ai-migration/`) to update or complete this runbook.
+Use the `ai-migration` skill to update or complete this runbook, and
+`/ai-migration:status` to see where it and everything else stands.
