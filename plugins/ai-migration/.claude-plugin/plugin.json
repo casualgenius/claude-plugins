@@ -1,6 +1,6 @@
 {
   "name": "ai-migration",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Track large refactors as runbooks that survive across sessions, agents and PRs",
   "author": {
     "name": "Alex Stansfield",

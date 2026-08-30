@@ -126,10 +126,16 @@ After a stage lands — run this without being asked when a PR you drove came fr
 3. **If the plan text below the note is now wrong, say so in the note** rather than editing the
    plan to match what happened. "The fix below is not what shipped, and the plan to vendor two
    faces was unnecessary" tells the next reader more than a silently corrected plan does.
-4. Flip the row in the `## Stages` table, and unblock whatever that stage was gating.
-5. Bump `updated:` in the frontmatter and rewrite the `**Progress**` line in the header.
-6. Update the runbook's row in the index README.
-7. **If the runbook has a counterpart in another repo**, check whether this stage changed anything
+4. **"Landed" alone is not enough when the stage body holds a "current state" snapshot.** That
+   snapshot then becomes the only concrete numbers on the page, and the next reader takes it as
+   present-day fact. Either say what the values became, or mark the snapshot as pre-work. This has
+   already produced a wrong conclusion: a stage that raised `targetSdk` from 33 to 36 recorded only
+   "Landed 2026-08-30 (forced early)", and a later pass read the untouched pre-work line and
+   reported the work as still outstanding.
+5. Flip the row in the `## Stages` table, and unblock whatever that stage was gating.
+6. Bump `updated:` in the frontmatter and rewrite the `**Progress**` line in the header.
+7. Update the runbook's row in the index README.
+8. **If the runbook has a counterpart in another repo**, check whether this stage changed anything
    it asserts — especially stage numbers, which drift the moment either side renumbers.
 
 ---
@@ -137,6 +143,11 @@ After a stage lands — run this without being asked when a PR you drove came fr
 ## Complete
 
 The last stage has landed.
+
+**Write the outcome from the code, not from the runbook.** A runbook is full of "current state"
+inventories captured _before_ each stage ran; quoting one into an outcome section states the
+problem as though it were the result. Re-check every factual claim against the files, and say what
+you verified and when.
 
 1. **Put a completion banner at the very top**, directly under the H1, as a blockquote — before
    anyone reads a word of the now-historical body:
