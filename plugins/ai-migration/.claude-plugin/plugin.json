@@ -1,0 +1,13 @@
+{
+  "name": "ai-migration",
+  "version": "1.0.0",
+  "description": "Track large refactors as runbooks that survive across sessions, agents and PRs",
+  "author": {
+    "name": "Alex Stansfield",
+    "email": "alex@casualgenius.com"
+  },
+  "homepage": "https://github.com/casualgenius/claude-plugins/tree/main/plugins/ai-migration",
+  "repository": "https://github.com/casualgenius/claude-plugins",
+  "license": "MIT",
+  "keywords": ["runbook", "migration", "refactor", "tech-debt", "planning"]
+}
